@@ -285,6 +285,7 @@ function publish(topic, msg, ownerPubkey, cb) {
             return;
         const host = getHost();
         const client = yield lazyClient(ownerPubkey, host);
+        console.log('pub to client!', client.connected);
         if (client)
             client.publish(topic, msg, optz, function (err) {
                 if (err)

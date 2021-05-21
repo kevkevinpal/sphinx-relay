@@ -250,6 +250,7 @@ export async function publish(topic, msg, ownerPubkey, cb) {
   if (ownerPubkey.length !== 66) return;
   const host = getHost();
   const client = await lazyClient(ownerPubkey, host);
+  console.log('pub to client!', client.connected)
   if (client)
     client.publish(topic, msg, optz, function (err) {
       if (err) console.log("[tribes] error publishing", err);
