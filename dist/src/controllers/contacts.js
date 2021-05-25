@@ -519,7 +519,7 @@ function createPeopleProfile(req, res) {
         try {
             const owner = yield models_1.models.Contact.findOne({ where: { tenant, isOwner: true } });
             const { id, host, pubkey, owner_alias, description, img, tags, } = req.body;
-            console.log('pubkey', pubkey);
+            console.log('body', req.body);
             console.log('owner.publicKey', owner.publicKey);
             if (pubkey !== owner.publicKey) {
                 res_1.failure(res, 'mismatched pubkey');

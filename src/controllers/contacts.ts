@@ -563,7 +563,7 @@ export async function createPeopleProfile(req, res){
       tags,
     } = req.body
 
-    console.log('pubkey', pubkey)
+    console.log('body', req.body)
     console.log('owner.publicKey', owner.publicKey)
     if (pubkey !== owner.publicKey) {
       failure(res, 'mismatched pubkey')
