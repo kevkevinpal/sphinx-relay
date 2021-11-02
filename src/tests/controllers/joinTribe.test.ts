@@ -6,7 +6,7 @@ import { deleteTribe, leaveTribe } from '../utils/del'
 import { sendTribeMessageAndCheckDecryption } from '../utils/msg'
 
 /*
-npx ava test-04-joinTribe.js --verbose --serial --timeout=2m
+npx ava src/tests/controllers/joinTribe.test.ts --verbose --serial --timeout=2m
 */
 
 interface Context {}
@@ -31,7 +31,7 @@ export async function joinTribeTest(t, node1, node2) {
   let join = await joinTribe(t, node2, tribe)
   t.true(join, 'node2 should join tribe')
 
-  //NODE1 SENDS A TEXT MESSAGE IN TRIBE
+  //NODE1 SENDS A TEXT MESSAGE IN TRIBE AND NODE2 DECRYPTS IT
   const text = randomText()
   let tribeMessage = await sendTribeMessageAndCheckDecryption(
     t,
@@ -42,7 +42,7 @@ export async function joinTribeTest(t, node1, node2) {
   )
   t.truthy(tribeMessage, 'node1 should send message to tribe')
 
-  //NODE2 SENDS A TEXT MESSAGE IN TRIBE
+  //NODE2 SENDS A TEXT MESSAGE IN TRIBE AND NODE1 DECRYPTS IT
   const text2 = randomText()
   let tribeMessage2 = await sendTribeMessageAndCheckDecryption(
     t,
