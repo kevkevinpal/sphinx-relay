@@ -71,7 +71,7 @@ export const getContacts = async (req, res) => {
 		return jsonUtils.chatToJson(theChat)
 	})
 
-	console.log("===> LOOK HERE FOR CONTACT RESPONSE: "contactsResponse)
+	console.log('===> LOOK HERE FOR CONTACT RESPONSE: ', contactsResponse)
 	success(res, {
 		contacts: contactsResponse,
 		chats: chatsResponse,
