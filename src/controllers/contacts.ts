@@ -10,7 +10,7 @@ import constants from '../constants'
 import * as tribes from '../utils/tribes'
 import * as network from '../network'
 import { isProxy, generateNewExternalUser } from '../utils/proxy'
-import { logging } from '../utils/logger'
+import { logger, logging } from '../utils/logger'
 import * as moment from 'moment'
 
 export const getContacts = async (req, res) => {
@@ -71,7 +71,10 @@ export const getContacts = async (req, res) => {
 		return jsonUtils.chatToJson(theChat)
 	})
 
-	console.log('===> LOOK HERE FOR CONTACT RESPONSE: ', contactsResponse)
+	logger.log({
+		message: '===> LOOK HERE FOR CONTACT RESPONSE: ',
+		level: 'info',
+	})
 	success(res, {
 		contacts: contactsResponse,
 		chats: chatsResponse,
