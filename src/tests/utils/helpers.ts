@@ -109,3 +109,14 @@ export function memeProtocol(host) {
   if (host.includes('localhost')) p = 'http'
   return p
 }
+
+export async function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export function makeJwtArgs(jwt, body) {
+  return {
+    headers: { 'x-jwt': jwt },
+    body,
+  }
+}
