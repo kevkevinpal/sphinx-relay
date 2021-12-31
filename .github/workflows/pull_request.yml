@@ -70,8 +70,5 @@ jobs:
         #    #npx ava src/tests/controllers/tribe3Profile.test.ts --verbose --serial --timeout=2m &&
         #    #npx ava src/tests/controllers/tribeEdit.test.ts --verbose --serial --timeout=2m &&
         #    #npx ava src/tests/controllers/tribeImages.test.ts --verbose --serial --timeout=2m
-  test:
-    runs-on: ubuntu-18.04 
-
 
 
