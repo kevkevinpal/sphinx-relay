@@ -338,11 +338,11 @@ export const createContact = async (req, res) => {
 
   success(res, jsonUtils.contactToJson(contact))
 
-  helpers.sendContactKeys({
+  /*helpers.sendContactKeys({
     contactIds: [contact.id],
     sender: owner,
     type: constants.message_types.contact_key,
-  })
+  })*/
 }
 
 export const deleteContact = async (req, res) => {
