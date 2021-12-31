@@ -46,9 +46,9 @@ jobs:
         source: "stack/relay/NODES.json"
         target: "relay/src/tests/configs/nodes.json"     
     - name: Run tests
-        working-directory: ./relay
-         run: |
-           npx ava src/tests/controllers/${{matrix.test-name}}.test.ts --verbose --serial --timeout=2m
+      working-directory: ./relay
+        run: |
+          npx ava src/tests/controllers/${{matrix.test-name}}.test.ts --verbose --serial --timeout=2m
         #    npx ava src/tests/controllers/botCreation.test.ts --verbose --serial --timeout=2m &&
         #    npx ava src/tests/controllers/chatInvoice.test.ts --verbose --serial --timeout=2m
         #    #npx ava src/tests/controllers/chatPayment.test.ts --verbose --serial --timeout=2m &&
