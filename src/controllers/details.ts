@@ -168,15 +168,26 @@ export const getBalance = async (req, res) => {
 
 export const getLocalRemoteBalance = async (req, res) => {
   if (!req.owner) return failure(res, 'no owner')
+
+  const date = new Date()
+  const tenant: number = req.owner.id
+  const owner = await models.Contact.findOne({ where: { id: tenant } })
+  owner.update({ lastActive: date })
+
   res.status(200)
   try {
-    const channelList = await Lightning.listChannels({}, req.owner.publicKey)
-    const { channels } = channelList
+    const channelListLocal = await Lightning.listChannels({}, owner.publicKey)
+    const channelsLocal = channelListLocal.channels
+    const channelListRemote = await Lightning.listChannels(
+      {},
+      req.owner.publicKey
+    )
+    const channelsRemote = channelListRemote.channels
 
-    const localBalances: number[] = channels.map((c) =>
+    const localBalances: number[] = channelsLocal.map((c) =>
       parseInt(c.local_balance)
     )
-    const remoteBalances: number[] = channels.map((c) =>
+    const remoteBalances: number[] = channelsRemote.map((c) =>
       parseInt(c.remote_balance)
     )
     const totalLocalBalance = localBalances.reduce((a, b) => a + b, 0)
