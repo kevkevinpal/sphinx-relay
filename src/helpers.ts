@@ -268,7 +268,7 @@ export async function parseReceiveParams(payload) {
     })
     owner = ownerRecord.dataValues
   }
-  if (!owner) console.log('=> parseReceiveParams cannot find owner')
+  if (!owner) return console.log('=> parseReceiveParams cannot find owner')
   if (isConversation) {
     const realAmount =
       network_type === constants.network_types.lightning ? amount : 0
