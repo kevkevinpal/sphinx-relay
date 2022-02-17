@@ -31,6 +31,8 @@ function messageToJson(msg, chat, contact?) {
     statusMap,
     chat: chat ? chatToJson(chat) : null,
     contact: contact ? contactToJson(contact) : null,
+    channelId: msg.channelId,
+    channelAlias: msg.channelAlias,
   })
 }
 

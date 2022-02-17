@@ -10,7 +10,9 @@ import * as rsa from '../../../crypto/rsa'
 import { getTribeIdFromUUID } from '../get'
 
 interface SendMessageOptions {
-  amount: number
+  amount?: number
+  channel_id?: number
+  channel_alias?: string
 }
 
 export async function sendTribeMessage(
@@ -41,6 +43,8 @@ export async function sendTribeMessage(
     amount: (options && options.amount) || 0,
     reply_uuid: '',
     boost: false,
+    channel_id: (options && options.channel_id) || null,
+    channel_alias: (options && options.channel_alias) || null,
   }
 
   //send message from node1 to node2

@@ -256,6 +256,8 @@ export async function parseReceiveParams(payload) {
   const purchaser_id = dat.message.purchaser
   const network_type = dat.network_type || 0
   const isTribeOwner = dat.isTribeOwner ? true : false
+  const channel_id = dat.message.channel_id
+  const channel_alias = dat.message.channel_alias
   const dest = dat.dest
 
   const isConversation =
@@ -333,6 +335,8 @@ export async function parseReceiveParams(payload) {
     sender_photo_url,
     network_type,
     message_status,
+    channel_id,
+    channel_alias,
   }
 }
 

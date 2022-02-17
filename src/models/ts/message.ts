@@ -15,7 +15,8 @@ export interface Message {
   remoteMessageContent: string
   status: number
   statusMap: string
-  parentId: number
+  channelId: number
+  channelAlias: string
   subscriptionId: number
   mediaKey: string
   mediaType: string
