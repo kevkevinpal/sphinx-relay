@@ -272,6 +272,8 @@ export const sendMessage = async (req, res) => {
     reply_uuid,
     boost,
     message_price,
+    channel_id,
+    channel_alias,
   } = req.body
 
   let msgtype = constants.message_types.message
@@ -340,11 +342,13 @@ export const sendMessage = async (req, res) => {
         ? constants.network_types.lightning
         : constants.network_types.mqtt,
     tenant,
+    channelId: channel_id,
+    channelAlias: channel_alias,
   }
   if (reply_uuid) msg.replyUuid = reply_uuid
-  // console.log(msg)
+  console.log(msg)
   const message = await models.Message.create(msg)
-
+  console.log('LOOK HERE THIS IS THE NEW MESSAGE', message)
   success(res, jsonUtils.messageToJson(message, chat))
 
   const msgToSend: { [k: string]: any } = {
@@ -352,6 +356,8 @@ export const sendMessage = async (req, res) => {
     uuid: message.uuid,
     content: remote_text_map || remote_text || text,
     amount: amtToStore,
+    channel_id: message.channelId,
+    channel_alias: message.channelAlias,
   }
   if (reply_uuid) msgToSend.replyUuid = reply_uuid
 
@@ -391,6 +397,8 @@ export const receiveMessage = async (payload) => {
     network_type,
     sender_photo_url,
     message_status,
+    channel_id,
+    channel_alias,
   } = await helpers.parseReceiveParams(payload)
   if (!owner || !sender || !chat) {
     return sphinxLogger.info('=> no group chat!')
@@ -415,7 +423,10 @@ export const receiveMessage = async (payload) => {
     status: message_status || constants.statuses.received,
     network_type: network_type,
     tenant,
+    channelId: channel_id,
+    channelAlias: channel_alias,
   }
+  console.log('DID WE GET the correct mesg ', msg)
   const isTribe = chat_type === constants.chat_types.tribe
   if (isTribe) {
     msg.senderAlias = sender_alias
@@ -424,6 +435,7 @@ export const receiveMessage = async (payload) => {
   }
   if (reply_uuid) msg.replyUuid = reply_uuid
   const message = await models.Message.create(msg)
+  console.log('DID WE GET the correct model mesg ', message)
 
   socket.sendJson(
     {

@@ -56,7 +56,10 @@ export default class Message extends Model<Message> {
   statusMap: string
 
   @Column(DataType.BIGINT)
-  parentId: number
+  channelId: number
+
+  @Column(DataType.TEXT)
+  channelAlias: string
 
   @Column(DataType.BIGINT)
   subscriptionId: number

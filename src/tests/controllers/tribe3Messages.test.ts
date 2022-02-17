@@ -4,6 +4,7 @@ import { randomText } from '../utils/helpers'
 import { deleteTribe, leaveTribe } from '../utils/del'
 import { createTribe, joinTribe } from '../utils/save'
 import { sendTribeMessage, checkMessageDecryption } from '../utils/msg'
+import { getCheckNewMsgs } from '../utils/get'
 
 import nodes from '../nodes'
 
@@ -101,6 +102,59 @@ export async function tribe3Msgs(t, node1, node2, node3) {
     text3
   )
   t.true(n2check2, 'node2 should have read and decrypted node3 message')
+
+  /*****
+				Here we want to create a new message channel for a tribe
+******/
+
+  //NODE3 SENDS A TEXT MESSAGE IN TRIBE
+  const text4 = randomText()
+  const options = { channel_id: 1, channel_alias: 'new channel' }
+  let tribeMessage4 = await sendTribeMessage(t, node3, tribe, text4, options)
+  const recivedMessageFromNode1 = await getCheckNewMsgs(
+    t,
+    node1,
+    tribeMessage4.uuid
+  )
+  const recivedMessageFromNode2 = await getCheckNewMsgs(
+    t,
+    node1,
+    tribeMessage4.uuid
+  )
+
+  t.true(
+    recivedMessageFromNode1.channel_id == options.channel_id,
+    'Node 1 gets message channel id'
+  )
+  t.true(
+    recivedMessageFromNode1.channel_alias == options.channel_alias,
+    'Node 1 gets message channel alias'
+  )
+  t.true(
+    recivedMessageFromNode2.channel_id == options.channel_id,
+    'node 2 gets message channel id'
+  )
+  t.true(
+    recivedMessageFromNode2.channel_alias == options.channel_alias,
+    'Node 2 gets message channel alias'
+  )
+  //CHECK THAT NODE3'S DECRYPTED MESSAGE IS SAME AS INPUT
+  const n1check3 = await checkMessageDecryption(
+    t,
+    node1,
+    tribeMessage4.uuid,
+    text4
+  )
+  t.true(n1check3, 'node1 should have read and decrypted node3 message')
+
+  //CHECK THAT NODE2'S DECRYPTED MESSAGE IS SAME AS INPUT
+  const n2check3 = await checkMessageDecryption(
+    t,
+    node2,
+    tribeMessage4.uuid,
+    text4
+  )
+  t.true(n2check3, 'node2 should have read and decrypted node3 message')
 
   //NODE2 LEAVES THE TRIBE
   let n2left = await leaveTribe(t, node2, tribe)
