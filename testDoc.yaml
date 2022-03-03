@@ -68,7 +68,7 @@ tags:
 x-tagGroups:
   - name: General
     tags:
-      - pet
+      - tribes
       - store
       - webhooks
   - name: User Management
@@ -79,7 +79,7 @@ x-tagGroups:
       - pet_model
       - store_model
 paths:
-  /pet:
+  /tribes:
     parameters:
       - name: Accept-Language
         in: header
