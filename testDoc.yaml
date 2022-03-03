@@ -2,7 +2,6 @@ openapi: 3.1.0
 info:
   description: |
     This is a sample server for sphinx-relay below you'll find api docs and such
-
   version: 1.0.0
   title: Swagger Sphinx-Relay
   summary: My lovely API
@@ -20,19 +19,11 @@ info:
 tags:
   - name: tribes
     description: Everything about your Tribes
-  - name: store_model
-    x-displayName: The Order Model
-    description: |
-      <SchemaDefinition schemaRef="#/components/schemas/Order" exampleRef="#/components/examples/Order" showReadOnly={true} showWriteOnly={true} />
 x-tagGroups:
   - name: Tribes
     tags:
       - tribe_channel
       - tribes
-  - name: Models
-    tags:
-      - pet_model
-      - store_model
 paths:
   /tribe_channel:
     post:
@@ -93,27 +84,3 @@ paths:
                   description: the domain of the host tribe server.
                   type: string
               type: object
-  securitySchemes:
-    x-auth-token:
-      description: |
-        This is for accessing your relay, recommended to use x-transport-token instead.
-      type: ???
-      in: header
-      flows:
-        implicit:
-          authorizationUrl: 'http://petstore.swagger.io/api/oauth/dialog'
-          scopes:
-            'write:pets': modify pets in your account
-            'read:pets': read your pets
-    x-transport-token:
-      description: >
-        encrypts x-auth-token with the x-transport-token pubkey with timestamp.
-      type: ???
-      in: header
-  examples:
-    Order:
-      value:
-        quantity: 1
-        shipDate: '2018-10-19T16:46:45Z'
-        status: placed
-        complete: false
