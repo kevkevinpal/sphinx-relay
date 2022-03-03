@@ -49,12 +49,38 @@ paths:
         - tribe_channel
       summary: Add a new channel for tribe in tribe server
       description: Create new tribe text channel.
-      operationId: addPet
+      operationId: createChannel
       responses:
         '405':
           description: Invalid input
       security:
-        - authToken:
+        - x-user-token:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                tribe_uuid:
+                  description: The id of the tribe to add channel to.
+                  type: string
+                host:
+                  description: the domain of the host tribe server.
+                  type: string
+                name:
+                  type: string
+              type: object
+    delete:
+      tags:
+        - tribe_channel
+      summary: delete tribe text channel
+      description: delete tribe text channel in the tribes server.
+      operationId: deleteChannel
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - x-user-token
+        - x-transport-token
       requestBody:
         content:
           application/json:
