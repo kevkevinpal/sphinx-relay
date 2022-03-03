@@ -14,14 +14,13 @@ info:
   termsOfService: 'http://swagger.io/terms/'
   contact:
     name: Sphinx Support
-    email: apiteam@swagger.io
-    url: https://github.com/Redocly/redoc
+    email: support@stakwork.com
   x-logo:
     url: 'https://miro.medium.com/max/512/1*sAlVjz09nS6f7iYJ6apMhg.png'
     altText: Sphinx-Chat logo
   license:
     name: MIT License
-    url: 'https://opensource.org/licenses/MIT'
+    url: 'https://raw.githubusercontent.com/stakwork/sphinx-relay/master/LICENSE'
     identifier: MIT License
 tags:
   - name: tribes
