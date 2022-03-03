@@ -61,7 +61,7 @@ paths:
           format: int64
     post:
       tags:
-        - pet
+        - tribe_channel
       summary: Add a new pet to the store
       description: Add new pet to the store inventory.
       operationId: addPet
