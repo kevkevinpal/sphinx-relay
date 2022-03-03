@@ -118,10 +118,10 @@ paths:
                   description: the domain of the host tribe server.
                   type: string
               type: object
-  /tribe_channel:
-      post:
+  /tribes:
+      get:
         tags:
-         - tribe_channel
+         - tribes
        summary: Add a new channel for tribe in tribe server
        description: Create new tribe text channel.
         operationId: createChannel
