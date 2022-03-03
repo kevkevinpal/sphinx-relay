@@ -47,7 +47,7 @@ paths:
                         type: number
                      tribe_uuid:
                         type: string
-                      name:
+                     name:
                        type: string
                      created:
                        type: dateTime
