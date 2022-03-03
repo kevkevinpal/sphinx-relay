@@ -34,9 +34,6 @@ x-tagGroups:
     tags:
       - tribe_channel
       - tribes
-  - name: User Management
-    tags:
-      - user
   - name: Models
     tags:
       - pet_model
