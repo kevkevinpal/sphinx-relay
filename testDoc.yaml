@@ -33,6 +33,28 @@ paths:
       description: Create new tribe text channel.
       operationId: createChannel
       responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                  response:
+                    type: object
+                    properties:
+                     id:
+                        type: number
+                     tribe_uuid:
+                        type: string
+                      name:
+                       type: string
+                     created:
+                       type: dateTime
+                     deleted:
+                        type: boolean
+                type: object
+          description: Success
         '405':
           description: Invalid input
       parameters:
@@ -55,27 +77,6 @@ paths:
                   type: string
                 name:
                   type: string
-              type: object
-      responseBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                success:
-                  type: boolean
-                response:
-                  type: object
-                  properties:
-                    id:
-                      type: number
-                    tribe_uuid:
-                      type: string
-                    name:
-                      type: string
-                    created:
-                      type: dateTime
-                    deleted:
-                      type: boolean
               type: object
     delete:
       tags:
