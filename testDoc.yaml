@@ -89,8 +89,20 @@ paths:
             } catch (UnprocessableEntityException $e) {
                 var_dump($e->getErrors());
             }
-      requestBody:
-        $ref: '#/components/requestBodies/createChannel'
+       requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                tribe_uuid:
+                  description: The id of the tribe to add channel to.
+                  type: string
+                host:
+                  description: the domain of the host tribe server.
+                  type: string
+                name:
+                  type: string
+              type: object
 components:
   schemas:
     ApiResponse:
