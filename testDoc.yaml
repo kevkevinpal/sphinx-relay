@@ -90,40 +90,8 @@ paths:
                 var_dump($e->getErrors());
             }
       requestBody:
-        $ref: '#/components/requestBodies/Pet'
+        $ref: '#/components/requestBodies/createChannel'
 components:
-  pathItems:
-    webhooks:
-      put:
-        summary: Get a cat details after update
-        description: Get a cat details after update
-        operationId: updatedCat
-        tags:
-          - webhooks
-        requestBody:
-          description: Information about cat in the system
-          content:
-            multipart/form-data:
-              schema:
-                $ref: "#/components/schemas/Cat"
-        responses:
-          '200':
-            description: update Cat details
-      post:
-        summary: Create new cat
-        description: Info about new cat
-        operationId: createdCat
-        tags:
-          - webhooks
-        requestBody:
-          description: Information about cat in the system
-          content:
-            multipart/form-data:
-              schema:
-                $ref: "#/components/schemas/Cat"
-        responses:
-          '200':
-            description: create Cat details
   schemas:
     ApiResponse:
       type: object
@@ -234,22 +202,13 @@ components:
       xml:
         name: Pet
   requestBodies:
-    Pet:
+    createChannel:
       content:
         application/json:
           schema:
             description: My Pet
             title: Pettie
-            $ref: '#/components/schemas/Pet'
-        application/xml:
-          schema:
-            type: 'object'
-            properties:
-              name:
-                type: string
-                description: hooray
-      description: Pet object that needs to be added to the store
-      required: true
+      description: object when we want to create a Text Channel
     UserArray:
       content:
         application/json:
