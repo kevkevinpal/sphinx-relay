@@ -32,7 +32,8 @@ tags:
 x-tagGroups:
   - name: Tribes
     tags:
-      - Create Text Channel
+      - tribe_channel
+      - tribes
   - name: User Management
     tags:
       - user
