@@ -74,21 +74,23 @@ paths:
       responses:
         '405':
           description: Invalid input
-      security:
-        - x-user-token
-        - x-transport-token
+      parameters:
+        - description: "Authentication token."
+        in: header
+        name: x-user-token
+        required: true
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
             schema:
               properties:
-                tribe_uuid:
-                  description: The id of the tribe to add channel to.
-                  type: string
+                id:
+                  description: The id of the channel to delete.
+                  type: number
                 host:
                   description: the domain of the host tribe server.
-                  type: string
-                name:
                   type: string
               type: object
   securitySchemes:
