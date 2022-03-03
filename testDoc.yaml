@@ -84,3 +84,4 @@ paths:
                   description: the domain of the host tribe server.
                   type: string
               type: object
+              
