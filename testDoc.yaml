@@ -44,14 +44,14 @@ x-tagGroups:
 paths:
   /tribe_channel:
     parameters:
-      - name: Accept-Language
+      - name: x-user-token
         in: header
-        description: "The language you prefer for messages. Supported values are en-AU, en-CA, en-GB, en-US"
-        example: en-US
-        required: false
+        description: "this is a token that is used to authenticate the correct user is accesing the relay"
+        example: QoiCvW84+Q0E77+wysfj
+        required: true
         schema:
           type: string
-          default: en-AU
+          default: none
     post:
       tags:
         - tribe_channel
