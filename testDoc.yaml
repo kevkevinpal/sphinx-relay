@@ -46,11 +46,11 @@ paths:
           description: Invalid input
       parameters:
         - description: "Authentication token."
-        in: header
-        name: x-user-token
-        required: true
-        schema:
-          type: string
+          in: header
+          name: x-user-token
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
@@ -76,11 +76,11 @@ paths:
           description: Invalid input
       parameters:
         - description: "Authentication token."
-        in: header
-        name: x-user-token
-        required: true
-        schema:
-          type: string
+          in: header
+          name: x-user-token
+          required: true
+          schema:
+            type: string
       requestBody:
         content:
           application/json:
