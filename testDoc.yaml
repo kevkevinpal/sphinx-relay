@@ -206,9 +206,9 @@ components:
       content:
         application/json:
           schema:
-            tribe_uuid:
-              description: Tribe uuid that you want to add text channel to
-              type: string
+            type: object
+            items:
+              $ref: '#components/schemas/Cat'
       description: object when we want to create a Text Channel
     UserArray:
       content:
