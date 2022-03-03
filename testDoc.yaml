@@ -50,7 +50,8 @@ paths:
                      name:
                        type: string
                      created:
-                       type: date-time
+                       type: string
+                       format: date-time
                      deleted:
                         type: boolean
                 type: object
