@@ -220,8 +220,6 @@ components:
           xml:
             name: tag
             wrapped: true
-          items:
-            $ref: '#/components/schemas/Tag'
         status:
           type: string
           description: Pet status in the store
