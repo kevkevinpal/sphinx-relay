@@ -89,7 +89,7 @@ paths:
             } catch (UnprocessableEntityException $e) {
                 var_dump($e->getErrors());
             }
-       requestBody:
+      requestBody:
         content:
           application/json:
             schema:
