@@ -35,15 +35,6 @@ x-tagGroups:
       - store_model
 paths:
   /tribe_channel:
-    parameters:
-      - name: x-user-token
-        in: header
-        description: "this is a token that is used to authenticate the correct user is accesing the relay"
-        example: QoiCvW84+Q0E77+wysfj
-        required: true
-        schema:
-          type: string
-          default: none
     post:
       tags:
         - tribe_channel
