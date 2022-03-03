@@ -44,8 +44,9 @@ paths:
       responses:
         '405':
           description: Invalid input
-      security:
-        - x-user-token:
+      headers:
+        x-user-token: string
+        x-transport-token: string
       requestBody:
         content:
           application/json:
