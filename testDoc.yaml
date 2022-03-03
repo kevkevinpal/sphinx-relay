@@ -30,11 +30,9 @@ tags:
     description: |
       <SchemaDefinition schemaRef="#/components/schemas/Order" exampleRef="#/components/examples/Order" showReadOnly={true} showWriteOnly={true} />
 x-tagGroups:
-  - name: General
+  - name: Tribes
     tags:
-      - tribes
-      - store
-      - webhooks
+      - Create Text Channel
   - name: User Management
     tags:
       - user
