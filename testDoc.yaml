@@ -108,7 +108,7 @@ paths:
         '405':
           description: Validation exception
       security:
-        - petstore_auth:
+        - x-auth-token:
             - 'write:pets'
             - 'read:pets'
       x-codeSamples:
@@ -156,8 +156,6 @@ paths:
           description: Invalid ID supplied
         '404':
           description: Pet not found
-      security:
-        - api_key: []
     post:
       tags:
         - pet
@@ -176,9 +174,6 @@ paths:
         '405':
           description: Invalid input
       security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -214,10 +209,6 @@ paths:
       responses:
         '400':
           description: Invalid pet value
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
   '/pet/{petId}/uploadImage':
     post:
       tags:
@@ -240,10 +231,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
       requestBody:
         content:
           application/octet-stream:
@@ -290,10 +277,6 @@ paths:
                   $ref: '#/components/schemas/Pet'
         '400':
           description: Invalid status value
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
   /pet/findByTags:
     get:
       tags:
@@ -330,10 +313,6 @@ paths:
                   $ref: '#/components/schemas/Pet'
         '400':
           description: Invalid tag value
-      security:
-        - petstore_auth:
-            - 'write:pets'
-            - 'read:pets'
   /store/inventory:
     get:
       tags:
@@ -1139,23 +1118,21 @@ components:
       description: List of user object
       required: true
   securitySchemes:
-    petstore_auth:
+    x-auth-token:
       description: |
-        Get access to data while protecting your account credentials.
-        OAuth2 is also a safer and more secure way to give you access.
-      type: oauth2
+        This is for accessing your relay, recommended to use x-transport-token instead.
+      type: ???
+      in: header
       flows:
         implicit:
           authorizationUrl: 'http://petstore.swagger.io/api/oauth/dialog'
           scopes:
             'write:pets': modify pets in your account
             'read:pets': read your pets
-    api_key:
+    x-transport-token:
       description: >
-        For this sample, you can use the api key `special-key` to test the
-        authorization filters.
-      type: apiKey
-      name: api_key
+        encrypts x-auth-token with the x-transport-token pubkey with timestamp.
+      type: ???
       in: header
   examples:
     Order:
