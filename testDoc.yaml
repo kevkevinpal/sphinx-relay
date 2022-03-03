@@ -84,6 +84,17 @@ paths:
       description: delete tribe text channel in the tribes server.
       operationId: deleteChannel
       responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                  response:
+                    type: boolean
+                type: object
+          description: Success
         '405':
           description: Invalid input
       parameters:
@@ -105,14 +116,3 @@ paths:
                   description: the domain of the host tribe server.
                   type: string
               type: object
-      responseBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                success:
-                  type: boolean
-                response:
-                  type: boolean
-              type: object
-              
