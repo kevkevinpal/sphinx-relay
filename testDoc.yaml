@@ -44,9 +44,13 @@ paths:
       responses:
         '405':
           description: Invalid input
-      headers:
-        x-user-token: string
-        x-transport-token: string
+      parameters:
+        - description: "Authentication token."
+        in: header
+        name: x-user-token
+        required: true
+        schema:
+          type: string
       requestBody:
         content:
           application/json:
