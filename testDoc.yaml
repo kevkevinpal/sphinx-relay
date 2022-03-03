@@ -206,8 +206,9 @@ components:
       content:
         application/json:
           schema:
-            description: My Pet
-            title: Pettie
+            tribe_uuid:
+              description: Tribe uuid that you want to add text channel to
+              type: string
       description: object when we want to create a Text Channel
     UserArray:
       content:
