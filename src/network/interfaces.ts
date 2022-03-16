@@ -6,6 +6,7 @@ export interface Msg {
     amount: number
     replyUuid?: string
     parentId?: number
+    mediaKey?: string
   }
   chat: {
     uuid: string

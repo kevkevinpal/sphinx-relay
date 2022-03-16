@@ -61,11 +61,11 @@ function encryptTribeBroadcast(full, contact, isTribeOwner) {
         if (isTribeOwner) {
             // has been previously decrypted
             if (message.content) {
-                const encContent = yield rsa.encrypt(contact.contactKey, message.content);
+                const encContent = rsa.encrypt(contact.contactKey, message.content);
                 obj.content = encContent;
             }
             if (message.mediaKey) {
-                const encMediaKey = yield rsa.encrypt(contact.contactKey, message.mediaKey);
+                const encMediaKey = rsa.encrypt(contact.contactKey, message.mediaKey);
                 obj.mediaKey = encMediaKey;
             }
         }
@@ -149,12 +149,12 @@ function decryptMessage(full, chat) {
     });
 }
 exports.decryptMessage = decryptMessage;
-function personalizeMessage(m, contact, isTribeOwner) {
+function personalizeMessage(msg, contact, isTribeOwner) {
     return __awaiter(this, void 0, void 0, function* () {
         const contactId = contact.id;
         const destkey = contact.publicKey;
-        const senderPubkey = m.sender.pub_key;
-        const cloned = JSON.parse(JSON.stringify(m));
+        const senderPubkey = msg.sender.pub_key;
+        const cloned = JSON.parse(JSON.stringify(msg));
         const chat = cloned && cloned.chat;
         const isTribe = chat.type && chat.type === constants_1.default.chat_types.tribe;
         const msgWithRemoteTxt = addInRemoteText(cloned, contactId, isTribe);

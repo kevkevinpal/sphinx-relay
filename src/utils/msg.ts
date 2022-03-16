@@ -1,6 +1,9 @@
 import { tokenFromTerms } from './ldat'
 import * as rsa from '../crypto/rsa'
 import constants from '../constants'
+import { Contact } from '../models/ts/contact'
+import { Chat } from '../models/ts/chat'
+import { Msg } from '../network/interfaces'
 
 function addInRemoteText(
   full: { [k: string]: any },
@@ -44,9 +47,9 @@ function removeAllNonAdminMembersIfTribe(full: { [k: string]: any }, destkey) {
 // by this time the content and mediaKey are already in message as string
 async function encryptTribeBroadcast(
   full: { [k: string]: any },
-  contact,
+  contact: Contact,
   isTribeOwner: boolean
-) {
+): Promise<{ [k: string]: any }> {
   if (!isTribeOwner) return full
 
   const chat = full && full.chat
@@ -56,11 +59,11 @@ async function encryptTribeBroadcast(
   if (isTribeOwner) {
     // has been previously decrypted
     if (message.content) {
-      const encContent = await rsa.encrypt(contact.contactKey, message.content)
+      const encContent = rsa.encrypt(contact.contactKey, message.content)
       obj.content = encContent
     }
     if (message.mediaKey) {
-      const encMediaKey = await rsa.encrypt(
+      const encMediaKey = rsa.encrypt(
         contact.contactKey,
         message.mediaKey
       )
@@ -119,7 +122,7 @@ async function finishTermsAndReceipt(
 
 // this is only for tribes
 // DECRYPT EITHER STRING OR FIRST VAL IN OBJ
-async function decryptMessage(full: { [k: string]: any }, chat) {
+async function decryptMessage(full: Msg, chat: Chat): Promise<Msg> {
   if (!chat.groupPrivateKey) return full
   const m = full && full.message
   if (!m) return full
@@ -147,15 +150,15 @@ async function decryptMessage(full: { [k: string]: any }, chat) {
   }
 
   // console.log("OBJ FILLED",fillmsg(full, obj))
-  return fillmsg(full, obj)
+  return fillmsg(full, obj) as Msg
 }
 
-async function personalizeMessage(m, contact, isTribeOwner: boolean) {
+async function personalizeMessage(msg: Msg, contact: Contact, isTribeOwner: boolean): Promise<{ [k: string]: any }> {
   const contactId = contact.id
   const destkey = contact.publicKey
-  const senderPubkey = m.sender.pub_key
+  const senderPubkey = msg.sender.pub_key
 
-  const cloned = JSON.parse(JSON.stringify(m))
+  const cloned = JSON.parse(JSON.stringify(msg))
 
   const chat = cloned && cloned.chat
   const isTribe = chat.type && chat.type === constants.chat_types.tribe
@@ -177,7 +180,7 @@ async function personalizeMessage(m, contact, isTribeOwner: boolean) {
   return encMsg
 }
 
-function fillmsg(full, props) {
+function fillmsg(full: { [k: string]: any }, props: { [k: string]: any }): { [k: string]: any } {
   return {
     ...full,
     message: {
@@ -187,7 +190,7 @@ function fillmsg(full, props) {
   }
 }
 
-function fillchatmsg(full, props) {
+function fillchatmsg(full: { [k: string]: any }, props: { [k: string]: any }): { [k: string]: any } {
   return {
     ...full,
     chat: {
