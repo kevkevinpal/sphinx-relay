@@ -6,6 +6,7 @@ import { tribeOwnerAutoConfirmation } from '../controllers/confirmations'
 import { typesToForward } from './receive'
 import * as intercept from './intercept'
 import constants from '../constants'
+import * as socket from '../utils/socket'
 import { logging, sphinxLogger } from '../utils/logger'
 import { Msg, MessageContent, ChatMember } from './interfaces'
 
@@ -203,6 +204,17 @@ export async function sendMessage({
       yes = r
     } catch (e) {
       sphinxLogger.error(`KEYSEND ERROR ${e}`)
+      socket.sendJson(
+        {
+          type: 'keysend_error',
+          response: {
+            errorMessage: 'KEYSEND ERROR',
+            errorDetails: e,
+          },
+        },
+        tenant
+      )
+
       no = e
     }
     await sleep(10)

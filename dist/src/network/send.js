@@ -18,6 +18,7 @@ const confirmations_1 = require("../controllers/confirmations");
 const receive_1 = require("./receive");
 const intercept = require("./intercept");
 const constants_1 = require("../constants");
+const socket = require("../utils/socket");
 const logger_1 = require("../utils/logger");
 function sendMessage({ type, chat, message, sender, amount, success, failure, skipPubKey, isForwarded, forwardedFromContactId, realSatsContactId, }) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -163,6 +164,13 @@ function sendMessage({ type, chat, message, sender, amount, success, failure, sk
             }
             catch (e) {
                 logger_1.sphinxLogger.error(`KEYSEND ERROR ${e}`);
+                socket.sendJson({
+                    type: 'keysend_error',
+                    response: {
+                        errorMessage: 'KEYSEND ERROR',
+                        errorDetails: e,
+                    },
+                }, tenant);
                 no = e;
             }
             yield sleep(10);
