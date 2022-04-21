@@ -357,12 +357,13 @@ export interface KeysendRequest {
   final_cltv_delta: number
   dest: Buf
   dest_custom_records: DestCustomRecords
-  payment_hash: Buf
-  dest_features: number[]
+  payment_hash?: Buf
+  dest_features?: number[]
   route_hints?: RouteHint[]
   fee_limit?: { [k: string]: number }
   fee_limit_sat?: number
   timeout_seconds?: number
+  // to use amp, unset payment_hash, dest_custom_records[`${LND_KEYSEND_KEY}`] and dest_features
   amp?: boolean
 }
 interface GreenlightHop {

@@ -346,6 +346,7 @@ function keysend(opts, ownerPubkey) {
                         // new sendPayment (with optional route hints)
                         options.fee_limit_sat = FEE_LIMIT_SAT;
                         options.timeout_seconds = 16;
+                        console.log(JSON.stringify(options));
                         const router = yield loadRouter();
                         const call = router.sendPaymentV2(options);
                         call.on('data', function (payment) {
@@ -357,11 +358,39 @@ function keysend(opts, ownerPubkey) {
                                 if (state === 'IN_FLIGHT') {
                                     // do nothing
                                 }
-                                else if (state === 'FAILED_NO_ROUTE') {
-                                    reject(payment.failure_reason || payment);
-                                }
-                                else if (state === 'FAILED') {
-                                    reject(payment.failure_reason || payment);
+                                else if (state === 'FAILED_NO_ROUTE' || state === 'FAILED') {
+                                    delete options.payment_hash;
+                                    delete options.dest_custom_records[`${exports.LND_KEYSEND_KEY}`];
+                                    delete options.dest_features;
+                                    options.amp = true;
+                                    console.log('Keysend failed, trying AMP');
+                                    console.log(JSON.stringify(options));
+                                    const call = router.sendPaymentV2(options);
+                                    call.on('data', function (payment) {
+                                        const state = payment.status || payment.state;
+                                        if (payment.payment_error) {
+                                            reject(payment.payment_error);
+                                        }
+                                        else {
+                                            if (state === 'IN_FLIGHT') {
+                                                // do nothing
+                                            }
+                                            else if (state === 'FAILED_NO_ROUTE') {
+                                                reject(payment.failure_reason || payment);
+                                            }
+                                            else if (state === 'FAILED') {
+                                                reject(payment.failure_reason || payment);
+                                            }
+                                            else if (state === 'SUCCEEDED') {
+                                                resolve(payment);
+                                            }
+                                        }
+                                    });
+                                    call.on('error', function (err) {
+                                        reject(err);
+                                    });
+                                    // } else if (state === 'FAILED') {
+                                    //   reject(payment.failure_reason || payment)
                                 }
                                 else if (state === 'SUCCEEDED') {
                                     resolve(payment);
@@ -833,7 +862,8 @@ function complexBalances(ownerPubkey) {
         }
         else {
             const reserve = channels.reduce((a, chan) => a + parseInt(chan.local_chan_reserve_sat), 0);
-            const spendableBalance = channels.reduce((a, chan) => a + Math.max(0, parseInt(chan.local_balance) - parseInt(chan.local_chan_reserve_sat)), 0);
+            const spendableBalance = channels.reduce((a, chan) => a +
+                Math.max(0, parseInt(chan.local_balance) - parseInt(chan.local_chan_reserve_sat)), 0);
             const response = yield channelBalance(ownerPubkey);
             return {
                 reserve,

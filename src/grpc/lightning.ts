@@ -355,7 +355,6 @@ export function keysend(
           // new sendPayment (with optional route hints)
           options.fee_limit_sat = FEE_LIMIT_SAT
           options.timeout_seconds = 16
-          options.amp = true
           console.log(JSON.stringify(options))
           const router = await loadRouter()
           const call = router.sendPaymentV2(options)
@@ -366,10 +365,35 @@ export function keysend(
             } else {
               if (state === 'IN_FLIGHT') {
                 // do nothing
-              } else if (state === 'FAILED_NO_ROUTE') {
-                reject(payment.failure_reason || payment)
-              } else if (state === 'FAILED') {
-                reject(payment.failure_reason || payment)
+              } else if (state === 'FAILED_NO_ROUTE' || state === 'FAILED') {
+                delete options.payment_hash
+                delete options.dest_custom_records[`${LND_KEYSEND_KEY}`]
+                delete options.dest_features
+                options.amp = true
+                console.log('Keysend failed, trying AMP')
+                console.log(JSON.stringify(options))
+                const call = router.sendPaymentV2(options)
+                call.on('data', function (payment) {
+                  const state = payment.status || payment.state
+                  if (payment.payment_error) {
+                    reject(payment.payment_error)
+                  } else {
+                    if (state === 'IN_FLIGHT') {
+                      // do nothing
+                    } else if (state === 'FAILED_NO_ROUTE') {
+                      reject(payment.failure_reason || payment)
+                    } else if (state === 'FAILED') {
+                      reject(payment.failure_reason || payment)
+                    } else if (state === 'SUCCEEDED') {
+                      resolve(payment)
+                    }
+                  }
+                })
+                call.on('error', function (err) {
+                  reject(err)
+                })
+              // } else if (state === 'FAILED') {
+              //   reject(payment.failure_reason || payment)
               } else if (state === 'SUCCEEDED') {
                 resolve(payment)
               }

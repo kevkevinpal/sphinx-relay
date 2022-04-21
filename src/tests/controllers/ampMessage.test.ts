@@ -2,51 +2,98 @@ import test, { ExecutionContext } from 'ava'
 import { sendPayment } from '../utils/msg'
 import nodes from '../nodes'
 import { addContact } from '../utils/save'
+import { NodeConfig } from '../types'
 
 /*
- npx ava src/tests/controllers/chatPayment.test.ts --verbose --serial --timeout=2m
+ npx ava src/tests/controllers/ampMessage.test.ts --verbose --serial --timeout=2m
 */
 
 interface Context {}
 
 test.serial(
-  'test-08-chatPayment: add contact, send payments, delete contact',
+  'ampMessage: send more sats than one channel can handle to test AMP',
   async (t: ExecutionContext<Context>) => {
     t.true(Array.isArray(nodes))
     await ampMessage(t, nodes)
   }
 )
 
-async function ampMessage(t, nodes) {
+async function ampMessage(t: ExecutionContext<Context>, nodes: NodeConfig[]) {
   //TWO NODES SEND PAYMENTS TO EACH OTHER IN A CHAT USING AMP ===>
 
-  console.log(`${nodes[0].alias} and ${nodes[1].alias}`)
-
-  console.log('adding contact')
-  const added = await addContact(t, nodes[0], nodes[1])
-  t.true(added, 'n1 should add n2 as contact')
-  console.log('contact added')
-
-  console.log('sending payment [Alice] -> [Bob]')
-  //NODE1 SENDS PAYMENT TO NODE2
-  const amount = 1500000
-  const paymentText = 'this eleven payment'
-  const payment = await sendPayment(t, nodes[0], nodes[2], amount, paymentText)
-  t.true(payment, 'payment should be sent')
-  console.log(payment)
-  console.log('payment sent [Alice] -> [Bob]')
-
-  //Alice both keysend and amp enabled
-  //Bob only keysend enabled
-  //Carol only amp enabled
+  //Alice and Bob both keysend and amp enabled
+  //Carol only keysend enabled
 
   //Test that we can send a payment with an amount larger than largest channel size
-  //from Alice -> Carol and using Bob as liquidity as the second part of the amp payment
-  //Alice -> 1.5mil sats -> Carol (since Alice has two channels with 1 mil each)
+  //from Alice -> Bob and using Carol as liquidity as the second shard of the amp payment
+  //Alice -> 1.5mil sats -> Bob (since Alice has two channels with 1 mil each)
 
-  //Test that if Bob doesnt have amp enabled this still works with keysend
+  {
+    const node1 = nodes[0]
+    const node2 = nodes[1]
 
-  //Test that Bob with only keysend enabled can send to amp node (ie Carol)
+    console.log(`amp payment from ${node1.alias} to ${node2.alias}`)
+
+    console.log('adding contact')
+    const added = await addContact(t, node1, node2)
+    t.true(added, 'n1 should add n2 as contact')
+    console.log('contact added')
+
+    console.log(`sending payment ${node1.alias} -> ${node2.alias}`)
+    //NODE1 SENDS PAYMENT TO NODE2
+    const amount = 1500000
+    const paymentText = 'AMP test 1'
+    const payment = await sendPayment(t, node1, node2, amount, paymentText)
+    console.log(payment)
+    t.true(payment, 'payment should be sent')
+    console.log(`payment sent ${node1.alias} -> ${node2.alias}`)
+  }
+
+  //Test that Carol still can receive keysends
+
+  {
+    const node1 = nodes[1]
+    const node2 = nodes[2]
+
+    console.log(`amp payment from ${node1.alias} to ${node2.alias}`)
+
+    console.log('adding contact')
+    const added = await addContact(t, node1, node2)
+    t.true(added, 'n1 should add n2 as contact')
+    console.log('contact added')
+
+    console.log(`sending payment ${node1.alias} -> ${node2.alias}`)
+    //NODE1 SENDS PAYMENT TO NODE2
+    const amount = 100000
+    const paymentText = 'AMP test 2'
+    const payment = await sendPayment(t, node1, node2, amount, paymentText)
+    console.log(payment)
+    t.true(payment, 'payment should be sent')
+    console.log(`payment sent ${node1.alias} -> ${node2.alias}`)
+  }
+
+  //Test that Carol with only keysend enabled can send to amp node (Alice)
+
+  {
+    const node1 = nodes[2]
+    const node2 = nodes[0]
+
+    console.log(`amp payment from ${node1.alias} to ${node2.alias}`)
+
+    console.log('adding contact')
+    const added = await addContact(t, node1, node2)
+    t.true(added, 'n1 should add n2 as contact')
+    console.log('contact added')
+
+    console.log(`sending payment ${node1.alias} -> ${node2.alias}`)
+    //NODE1 SENDS PAYMENT TO NODE2
+    const amount = 1500000
+    const paymentText = 'AMP test 3'
+    const payment = await sendPayment(t, node1, node2, amount, paymentText)
+    console.log(payment)
+    t.true(payment, 'payment should be sent')
+    console.log(`payment sent ${node1.alias} -> ${node2.alias}`)
+  }
 }
 
 module.exports = ampMessage
