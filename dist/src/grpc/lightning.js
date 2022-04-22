@@ -345,7 +345,7 @@ function keysend(opts, ownerPubkey) {
                     }
                     else {
                         delete options.payment_hash;
-                        delete options.dest_custom_records[`${exports.LND_KEYSEND_KEY}`];
+                        delete dest_custom_records[`${exports.LND_KEYSEND_KEY}`];
                         delete options.dest_features;
                         options.amp = true;
                         options.fee_limit_sat = FEE_LIMIT_SAT;

@@ -2824,6 +2824,11 @@ message Invoice {
     [EXPERIMENTAL].
     */
     bool is_keysend = 25;
+
+    /*
+    Signals whether or not this is an AMP invoice.
+    */
+    bool is_amp = 27;
 }
 
 enum InvoiceHTLCState {

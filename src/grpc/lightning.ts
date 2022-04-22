@@ -354,7 +354,7 @@ export function keysend(
           })
         } else {
           delete options.payment_hash
-          delete options.dest_custom_records[`${LND_KEYSEND_KEY}`]
+          delete dest_custom_records[`${LND_KEYSEND_KEY}`]
           delete options.dest_features
           options.amp = true
 

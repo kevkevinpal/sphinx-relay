@@ -532,6 +532,7 @@ export interface Invoice {
   htlcs: InvoiceHTLC[]
   features: { [k: string]: any }
   is_keysend: boolean
+  is_amp: boolean
 }
 interface GreenlightOffchainPayment {
   label: string

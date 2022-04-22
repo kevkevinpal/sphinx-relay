@@ -34,12 +34,12 @@ function subscribeInvoices(parseKeysendInvoice) {
                 // console.log("=> INVOICE RAW", response)
                 const inv = interfaces.subscribeResponse(response);
                 // console.log("INVOICE RECEIVED", inv)
-                // loginvoice(inv)
+                console.log(inv);
                 if (inv.state !== interfaces.InvoiceState.SETTLED) {
                     return;
                 }
                 // console.log("IS KEYSEND", inv.is_keysend)
-                if (inv.is_keysend) {
+                if (inv.is_keysend || inv.is_amp) {
                     parseKeysendInvoice(inv);
                 }
                 else {
