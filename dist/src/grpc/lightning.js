@@ -378,13 +378,12 @@ function keysend(opts, ownerPubkey) {
                                             if (state === 'IN_FLIGHT') {
                                                 // do nothing
                                             }
-                                            else if (state === 'FAILED_NO_ROUTE') {
-                                                reject(payment.failure_reason || payment);
-                                            }
-                                            else if (state === 'FAILED') {
+                                            else if (state === 'FAILED_NO_ROUTE' || state === 'FAILED') {
+                                                console.log('keysend fail', payment.failure_reason || payment);
                                                 reject(payment.failure_reason || payment);
                                             }
                                             else if (state === 'SUCCEEDED') {
+                                                console.log('keysend ok', payment);
                                                 resolve(payment);
                                             }
                                         }
@@ -394,6 +393,7 @@ function keysend(opts, ownerPubkey) {
                                     });
                                 }
                                 else if (state === 'SUCCEEDED') {
+                                    console.log('AMP ok', payment);
                                     resolve(payment);
                                 }
                             }
