@@ -26,7 +26,7 @@ export function subscribeInvoices(
       // console.log("=> INVOICE RAW", response)
       const inv = interfaces.subscribeResponse(response)
       // console.log("INVOICE RECEIVED", inv)
-      console.log(inv)
+      console.log(JSON.stringify(inv, null, 2))
       if (inv.state !== interfaces.InvoiceState.SETTLED) {
         return
       }
