@@ -32,6 +32,8 @@ jobs:
     - name: Checkout stack
       run: |
         git clone -b amp https://github.com/antonilol/sphinx-stack.git stack
+        cd stack
+        git checkout 77d3fe8
     - name: give permissions
       working-directory: ./stack
       run: |
