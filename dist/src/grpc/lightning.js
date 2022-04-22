@@ -277,6 +277,7 @@ function keysend(opts, ownerPubkey) {
             try {
                 const randoStr = crypto.randomBytes(32).toString('hex');
                 const preimage = ByteBuffer.fromHex(randoStr);
+                const payment_hash = sha.sha256.arrayBuffer(preimage.toBuffer());
                 const dest_custom_records = {
                     [`${exports.LND_KEYSEND_KEY}`]: preimage,
                 };
@@ -285,13 +286,14 @@ function keysend(opts, ownerPubkey) {
                         dest_custom_records[k] = ByteBuffer.fromUTF8(v);
                     });
                 }
+                const dest_features = [9];
                 const options = {
                     amt: Math.max(opts.amt, constants_1.default.min_sat_amount || 3),
                     final_cltv_delta: 10,
                     dest: ByteBuffer.fromHex(opts.dest),
                     dest_custom_records,
-                    payment_hash: sha.sha256.arrayBuffer(preimage.toBuffer()),
-                    dest_features: [9],
+                    payment_hash,
+                    dest_features,
                 };
                 if (opts.data) {
                     options.dest_custom_records[`${exports.SPHINX_CUSTOM_RECORD_KEY}`] =
@@ -342,11 +344,12 @@ function keysend(opts, ownerPubkey) {
                         });
                     }
                     else {
-                        // console.log("SEND sendPaymentV2", options)
-                        // new sendPayment (with optional route hints)
+                        delete options.payment_hash;
+                        delete options.dest_custom_records[`${exports.LND_KEYSEND_KEY}`];
+                        delete options.dest_features;
+                        options.amp = true;
                         options.fee_limit_sat = FEE_LIMIT_SAT;
                         options.timeout_seconds = 16;
-                        console.log(JSON.stringify(options));
                         const router = yield loadRouter();
                         const call = router.sendPaymentV2(options);
                         call.on('data', function (payment) {
@@ -359,12 +362,12 @@ function keysend(opts, ownerPubkey) {
                                     // do nothing
                                 }
                                 else if (state === 'FAILED_NO_ROUTE' || state === 'FAILED') {
-                                    delete options.payment_hash;
-                                    delete options.dest_custom_records[`${exports.LND_KEYSEND_KEY}`];
-                                    delete options.dest_features;
-                                    options.amp = true;
-                                    console.log('Keysend failed, trying AMP');
-                                    console.log(JSON.stringify(options));
+                                    console.log('AMP failed, trying keysend');
+                                    // restore options
+                                    options.payment_hash = payment_hash;
+                                    options.dest_custom_records[`${exports.LND_KEYSEND_KEY}`] = preimage;
+                                    options.dest_features = dest_features;
+                                    delete options.amp;
                                     const call = router.sendPaymentV2(options);
                                     call.on('data', function (payment) {
                                         const state = payment.status || payment.state;
@@ -389,8 +392,6 @@ function keysend(opts, ownerPubkey) {
                                     call.on('error', function (err) {
                                         reject(err);
                                     });
-                                    // } else if (state === 'FAILED') {
-                                    //   reject(payment.failure_reason || payment)
                                 }
                                 else if (state === 'SUCCEEDED') {
                                     resolve(payment);
