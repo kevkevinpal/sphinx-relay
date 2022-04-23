@@ -24,6 +24,7 @@ import * as bolt11 from '@boltz/bolt11'
 import { loadConfig } from '../utils/config'
 import { sphinxLogger, logging } from '../utils/logger'
 import { Payload } from './interfaces'
+import * as sha from 'js-sha256'
 
 const config = loadConfig()
 /*
@@ -496,7 +497,8 @@ export async function parseKeysendInvoice(
   i: interfaces.Invoice
 ): Promise<void> {
   try {
-    const hash = i.r_hash.toString('base64')
+    // const hash = i.r_hash.toString('base64')
+    const hash = sha.sha256.hex(JSON.stringify(i))
     if (hashCache[hash]) return
     hashCache[hash] = true
   } catch (e) {
