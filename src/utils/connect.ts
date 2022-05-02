@@ -19,6 +19,7 @@ export async function getIP(): Promise<string> {
   const public_url = config.public_url
   if (public_url) theIP = public_url
 
+  console.log('LOOK HERE THIS IS THE IP:', theIP)
   if (!theIP) {
     theIP = process.env.NODE_IP
     if (!theIP) {

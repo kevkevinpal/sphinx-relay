@@ -134,14 +134,17 @@ function ownerMiddleware(req, res, next) {
             next();
             return;
         }
+        console.log('FIRST log');
         // Here we are grabing both the x-user-token and x-transport-token
         const x_user_token = req.headers['x-user-token'] || req.cookies['x-user-token'];
         const x_transport_token = req.headers['x-transport-token'] || req.cookies['x-transport-token'];
         // default assign token to x-user-token
         let token = x_user_token;
+        console.log('did we get x_user_token: ', x_user_token);
         // If we see the user using the new x_transport_token
         // we will enter this if block and execute this logic
         if (x_transport_token) {
+            console.log('are we using x_transport_token: ', x_transport_token);
             // Deleting any transport tokens that are older than a minute long
             // since they will fail the date test futhrer along the auth process
             yield models_1.models.RequestsTransportTokens.destroy({
@@ -235,6 +238,7 @@ function ownerMiddleware(req, res, next) {
                 }
             }
         }
+        console.log('did we find the owner', owner);
         if (!owner) {
             res.writeHead(401, 'Access invalid for user', {
                 'Content-Type': 'text/plain',
