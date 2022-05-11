@@ -363,7 +363,12 @@ function initGrpcSubscriptions(noCache) {
                 Greenlight.keepalive();
             }
             yield Lightning.getInfo(true, noCache); // try proxy
-            yield lndService.subscribeInvoices(parseKeysendInvoice);
+            try {
+                yield lndService.subscribeInvoices(parseKeysendInvoice);
+            }
+            catch (e) {
+                logger_1.sphinxLogger.error(`subscribeInvoices failed: ${e}`);
+            }
         }
         catch (e) {
             console.log('=> initGrpcSubscriptions error', e);

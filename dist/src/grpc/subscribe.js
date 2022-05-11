@@ -21,6 +21,7 @@ const ERR_CODE_UNAVAILABLE = 14;
 const ERR_CODE_STREAM_REMOVED = 2;
 const ERR_CODE_UNIMPLEMENTED = 12; // locked
 function subscribeInvoices(parseKeysendInvoice) {
+    logger_1.sphinxLogger.info(`subscribeInvoices`, logger_1.logging.Lightning);
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         let ownerPubkey = '';
         if ((0, proxy_1.isProxy)()) {

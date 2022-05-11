@@ -21,6 +21,7 @@ export async function getContacts(
   t.true(typeof n1contactP1 === 'object')
 
   if (node2) {
+    console.log(node2.pubkey)
     // node2 contact object from node1 perspective
     let n2contactP1 = res.response.contacts.find(
       (contact) => contact.public_key === node2.pubkey

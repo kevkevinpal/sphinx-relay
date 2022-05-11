@@ -32,6 +32,7 @@ const getContacts = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     if (!req.owner)
         return (0, res_1.failure)(res, 'no owner');
     const tenant = req.owner.id;
+    logger_1.sphinxLogger.info(`=> getContacts`);
     const dontIncludeFromGroup = req.query.from_group && req.query.from_group === 'false';
     const includeUnmet = req.query.unmet && req.query.unmet === 'include';
     const where = { deleted: false, tenant };
@@ -81,6 +82,7 @@ const getContacts = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const pendingContactIds = membs.map((m) => m.contactId);
         return jsonUtils.chatToJson(Object.assign(Object.assign({}, theChat), { pendingContactIds }));
     });
+    logger_1.sphinxLogger.info(`=> getContacts completed`);
     (0, res_1.success)(res, {
         contacts: contactsResponse,
         chats: chatsResponse,

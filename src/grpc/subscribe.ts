@@ -13,6 +13,7 @@ const ERR_CODE_UNIMPLEMENTED = 12 // locked
 export function subscribeInvoices(
   parseKeysendInvoice: (i: interfaces.Invoice) => Promise<void>
 ): Promise<void | null> {
+  sphinxLogger.info(`subscribeInvoices`, logging.Lightning)
   return new Promise(async (resolve, reject) => {
     let ownerPubkey = ''
     if (isProxy()) {

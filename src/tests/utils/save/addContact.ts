@@ -17,11 +17,14 @@ export async function addContact(
     route_hint: node2.routeHint || '',
   }
 
+  console.log(body)
+  console.log(node1)
   //node1 adds node2 as contact
   const add = await http.post(
     node1.external_ip + '/contacts',
     makeArgs(node1, body)
   )
+  console.log(add)
   t.true(typeof add.response === 'object', 'add contact should return object')
   //create node2 id based on the post response
   var node2id = add && add.response && add.response.id

@@ -71,11 +71,13 @@ export const sendContactKeys = async ({
   contactPubKey?: string
   routeHint?: string
 }) => {
+  sphinxLogger.info(`sendContactKeys`, logging.Lightning)
   const msg = newkeyexchangemsg(
     type,
     sender,
     dontActuallySendContactKey || false
   )
+  sphinxLogger.info(`finished new keyexchange message`, logging.Lightning)
 
   if (contactPubKey) {
     // dont use ids here
@@ -107,6 +109,8 @@ export const sendContactKeys = async ({
 
     // console.log("=> KEY EXCHANGE", msg)
     // console.log("=> TO", destination_key, route_hint)
+
+    sphinxLogger.info(`new keysend message`, logging.Lightning)
     await performKeysendMessage({
       sender,
       destination_key,
@@ -120,6 +124,7 @@ export const sendContactKeys = async ({
         no = error
       },
     })
+    sphinxLogger.info(`finished new keysend message`, logging.Lightning)
     await sleep(1000)
   })
   if (no && failure) {
@@ -157,8 +162,10 @@ export const performKeysendMessage = async ({
     extra_tlv,
   }
   try {
+    sphinxLogger.info(`signAndSendBeingCalled`, logging.Network)
     const r = await signAndSend(opts, sender)
     // console.log("=> keysend to new contact")
+    sphinxLogger.info(`finsihed signAndSendBeingCalled`, logging.Network)
     if (success) success(r)
   } catch (e) {
     sphinxLogger.info(

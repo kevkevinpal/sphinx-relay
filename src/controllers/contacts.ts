@@ -34,6 +34,7 @@ const config = loadConfig()
 export const getContacts = async (req: Req, res: Response): Promise<void> => {
   if (!req.owner) return failure(res, 'no owner')
   const tenant: number = req.owner.id
+  sphinxLogger.info(`=> getContacts`)
 
   const dontIncludeFromGroup =
     req.query.from_group && req.query.from_group === 'false'
@@ -96,6 +97,7 @@ export const getContacts = async (req: Req, res: Response): Promise<void> => {
     return jsonUtils.chatToJson({ ...theChat, pendingContactIds })
   })
 
+  sphinxLogger.info(`=> getContacts completed`)
   success(res, {
     contacts: contactsResponse,
     chats: chatsResponse,
