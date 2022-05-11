@@ -17,6 +17,7 @@ const Lightning = require("../grpc/lightning");
 const models_1 = require("../models");
 const node_fetch_1 = require("node-fetch");
 const logger_1 = require("./logger");
+const helpers_1 = require("../helpers");
 // var protoLoader = require('@grpc/proto-loader')
 const config = (0, config_1.loadConfig)();
 const LND_IP = config.lnd_ip || 'localhost';
@@ -153,16 +154,42 @@ function getProxyTotalBalance() {
 }
 exports.getProxyTotalBalance = getProxyTotalBalance;
 function loadProxyCredentials(macPrefix) {
-    const lndCert = fs.readFileSync(config.proxy_tls_location);
-    const sslCreds = grpc.credentials.createSsl(lndCert);
-    const m = fs.readFileSync(config.proxy_macaroons_dir + '/' + macPrefix + '.macaroon');
-    const macaroon = m.toString('hex');
-    const metadata = new grpc.Metadata();
-    metadata.add('macaroon', macaroon);
-    const macaroonCreds = grpc.credentials.createFromMetadataGenerator((_args, callback) => {
-        callback(null, metadata);
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            let lndCert;
+            let sslCreds;
+            try {
+                lndCert = fs.readFileSync(config.proxy_tls_location);
+                sslCreds = grpc.credentials.createSsl(lndCert);
+            }
+            catch (e) {
+                logger_1.sphinxLogger.error('Error getting lndCert from proxy', e);
+            }
+            let m;
+            //sphinxLogger.info(`attempt to get macaroon`)
+            let count = 0;
+            while (m == undefined && count < 100) {
+                logger_1.sphinxLogger.error(`failed to get macaroon trying again ${macPrefix}`);
+                yield (0, helpers_1.sleep)(50000);
+                count++;
+                m = fs.readFileSync(config.proxy_macaroons_dir + '/' + macPrefix + '.macaroon');
+            }
+            const macaroon = m.toString('hex');
+            const metadata = new grpc.Metadata();
+            //sphinxLogger.info(`adding macaroon to grpc metadata`)
+            metadata.add('macaroon', macaroon);
+            const macaroonCreds = grpc.credentials.createFromMetadataGenerator((_args, callback) => {
+                callback(null, metadata);
+            });
+            //sphinxLogger.info(`finished loading proxy credentials`)
+            logger_1.sphinxLogger.info(`sslCreds ${JSON.stringify(sslCreds)}`);
+            logger_1.sphinxLogger.info(`macaroonCreds ${JSON.stringify(macaroonCreds)}`);
+            return grpc.credentials.combineChannelCredentials(sslCreds, macaroonCreds);
+        }
+        catch (e) {
+            logger_1.sphinxLogger.error(`ERROR in loadProxyCredentials ${e}`);
+        }
     });
-    return grpc.credentials.combineChannelCredentials(sslCreds, macaroonCreds);
 }
 exports.loadProxyCredentials = loadProxyCredentials;
 function loadProxyLightning(ownerPubkey) {
@@ -180,10 +207,13 @@ function loadProxyLightning(ownerPubkey) {
                     //do nothing here
                 }
             }
-            const credentials = loadProxyCredentials(macname);
+            const credentials = yield loadProxyCredentials(macname);
+            //console.log('credentials got: ', credentials)
             const lnrpcDescriptor = grpc.load('proto/rpc_proxy.proto');
+            //console.log('lnrpcDescriptor got')
             const lnrpc = lnrpcDescriptor.lnrpc_proxy;
             const the = new lnrpc.Lightning(PROXY_LND_IP + ':' + config.proxy_lnd_port, credentials);
+            //console.log('final step')
             return the;
         }
         catch (e) {

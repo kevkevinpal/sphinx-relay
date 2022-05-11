@@ -16,10 +16,14 @@ export function getContactAndCheckKeyExchange(
 
 async function timeout(i, t, node1, node2, resolve, reject) {
   const [node1contact, node2contact] = await getContacts(t, node1, node2)
+
+  console.log('Contact Keys')
+  console.log(node1contact.contact_key)
+  console.log(node2contact.contact_key)
   if (node1contact.contact_key && node2contact.contact_key) {
     return resolve([node1contact, node2contact])
   }
-  if (i >= 15) {
+  if (i >= 3) {
     return reject('failed to getContactAndCheckKeyExchange')
   }
   setTimeout(() => {

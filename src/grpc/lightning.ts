@@ -202,6 +202,7 @@ export type NewAddressType = 0 | 1 | 2 | 3
 export async function newAddress(
   type: NewAddressType = NESTED_PUBKEY_HASH
 ): Promise<string> {
+  sphinxLogger.info('newAddress', logging.Lightning)
   return new Promise(async function (resolve, reject) {
     const lightning = await loadLightning()
     lightning.newAddress({ type }, (err, response) => {
@@ -508,6 +509,7 @@ async function paginateInvoices(limit, i = 0) {
   }
 }
 function listInvoicesPaginated(limit, offset) {
+  sphinxLogger.info(`=> list invoices paginated`)
   return new Promise(async (resolve, reject) => {
     const lightning = await loadLightning()
     lightning.listInvoices(
@@ -547,6 +549,7 @@ export function listPaymentsPaginated(
   limit: number,
   offset: number
 ): Promise<any> {
+  sphinxLogger.info('=> list all paymentsPaginated')
   return new Promise(async (resolve, reject) => {
     const lightning = await loadLightning()
     lightning.listPayments(
@@ -706,6 +709,7 @@ export async function getInfo(
   noCache?: boolean
 ): Promise<interfaces.GetInfoResponse> {
   // log('getInfo')
+  sphinxLogger.info('getInfo', logging.Lightning)
   return new Promise(async (resolve, reject) => {
     try {
       const lightning = await loadLightning(
@@ -731,6 +735,7 @@ export async function addInvoice(
   ownerPubkey?: string
 ): Promise<interfaces.AddInvoiceResponse> {
   // log('addInvoice')
+  sphinxLogger.info('addInvoice', logging.Lightning)
   return new Promise(async (resolve, reject) => {
     const lightning = await loadLightning(true, ownerPubkey) // try proxy
     const cmd = interfaces.addInvoiceCommand()
@@ -871,7 +876,12 @@ export async function complexBalances(
       0
     )
     const spendableBalance = channels.reduce(
-      (a, chan) => a + Math.max(0, parseInt(chan.local_balance) - parseInt(chan.local_chan_reserve_sat)),
+      (a, chan) =>
+        a +
+        Math.max(
+          0,
+          parseInt(chan.local_balance) - parseInt(chan.local_chan_reserve_sat)
+        ),
       0
     )
     const response = await channelBalance(ownerPubkey)
@@ -906,6 +916,7 @@ export async function getChanInfo(
 ): Promise<{ [k: string]: any }> {
   // log('getChanInfo')
   if (IS_GREENLIGHT) return {} // skip for now
+  sphinxLogger.info('getChanInfo', logging.Lightning)
   return new Promise(async (resolve, reject) => {
     if (!chan_id) {
       return reject('no chan id')

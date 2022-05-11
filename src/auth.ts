@@ -235,6 +235,7 @@ export async function ownerMiddleware(req, res, next) {
       where: { authToken: hashedToken, isOwner: true },
     })
   }
+  console.log('we found the owner', owner)
 
   // find by JWT
   if (jwt) {

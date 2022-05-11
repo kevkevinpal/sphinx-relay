@@ -192,6 +192,7 @@ exports.UNUSED_WITNESS_PUBKEY_HASH = 2;
 exports.UNUSED_NESTED_PUBKEY_HASH = 3;
 function newAddress(type = exports.NESTED_PUBKEY_HASH) {
     return __awaiter(this, void 0, void 0, function* () {
+        logger_1.sphinxLogger.info('newAddress', logger_1.logging.Lightning);
         return new Promise(function (resolve, reject) {
             return __awaiter(this, void 0, void 0, function* () {
                 const lightning = yield loadLightning();
@@ -503,6 +504,7 @@ function paginateInvoices(limit, i = 0) {
     });
 }
 function listInvoicesPaginated(limit, offset) {
+    logger_1.sphinxLogger.info(`=> list invoices paginated`);
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         const lightning = yield loadLightning();
         lightning.listInvoices({
@@ -543,6 +545,7 @@ function paginatePayments(limit, i = 0) {
     });
 }
 function listPaymentsPaginated(limit, offset) {
+    logger_1.sphinxLogger.info('=> list all paymentsPaginated');
     return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
         const lightning = yield loadLightning();
         lightning.listPayments({
@@ -684,6 +687,7 @@ exports.verifyAscii = verifyAscii;
 function getInfo(tryProxy, noCache) {
     return __awaiter(this, void 0, void 0, function* () {
         // log('getInfo')
+        logger_1.sphinxLogger.info('getInfo', logger_1.logging.Lightning);
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             try {
                 const lightning = yield loadLightning(tryProxy === false ? false : true, undefined, noCache); // try proxy
@@ -706,6 +710,7 @@ exports.getInfo = getInfo;
 function addInvoice(request, ownerPubkey) {
     return __awaiter(this, void 0, void 0, function* () {
         // log('addInvoice')
+        logger_1.sphinxLogger.info('addInvoice', logger_1.logging.Lightning);
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             const lightning = yield loadLightning(true, ownerPubkey); // try proxy
             const cmd = interfaces.addInvoiceCommand();
@@ -833,7 +838,8 @@ function complexBalances(ownerPubkey) {
         }
         else {
             const reserve = channels.reduce((a, chan) => a + parseInt(chan.local_chan_reserve_sat), 0);
-            const spendableBalance = channels.reduce((a, chan) => a + Math.max(0, parseInt(chan.local_balance) - parseInt(chan.local_chan_reserve_sat)), 0);
+            const spendableBalance = channels.reduce((a, chan) => a +
+                Math.max(0, parseInt(chan.local_balance) - parseInt(chan.local_chan_reserve_sat)), 0);
             const response = yield channelBalance(ownerPubkey);
             return {
                 reserve,
@@ -867,6 +873,7 @@ function getChanInfo(chan_id, tryProxy) {
         // log('getChanInfo')
         if (IS_GREENLIGHT)
             return {}; // skip for now
+        logger_1.sphinxLogger.info('getChanInfo', logger_1.logging.Lightning);
         return new Promise((resolve, reject) => __awaiter(this, void 0, void 0, function* () {
             if (!chan_id) {
                 return reject('no chan id');

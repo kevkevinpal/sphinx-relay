@@ -63,7 +63,9 @@ const findOrCreateChat = (params) => __awaiter(void 0, void 0, void 0, function*
 });
 exports.findOrCreateChat = findOrCreateChat;
 const sendContactKeys = ({ type, contactIds, sender, success, failure, dontActuallySendContactKey, contactPubKey, routeHint, }) => __awaiter(void 0, void 0, void 0, function* () {
+    logger_1.sphinxLogger.info(`sendContactKeys`, logger_1.logging.Lightning);
     const msg = newkeyexchangemsg(type, sender, dontActuallySendContactKey || false);
+    logger_1.sphinxLogger.info(`finished new keyexchange message`, logger_1.logging.Lightning);
     if (contactPubKey) {
         // dont use ids here
         (0, exports.performKeysendMessage)({
@@ -92,6 +94,7 @@ const sendContactKeys = ({ type, contactIds, sender, success, failure, dontActua
         const route_hint = contact.routeHint;
         // console.log("=> KEY EXCHANGE", msg)
         // console.log("=> TO", destination_key, route_hint)
+        logger_1.sphinxLogger.info(`new keysend message`, logger_1.logging.Lightning);
         yield (0, exports.performKeysendMessage)({
             sender,
             destination_key,
@@ -105,6 +108,7 @@ const sendContactKeys = ({ type, contactIds, sender, success, failure, dontActua
                 no = error;
             },
         });
+        logger_1.sphinxLogger.info(`finished new keysend message`, logger_1.logging.Lightning);
         yield sleep(1000);
     }));
     if (no && failure) {
@@ -124,8 +128,10 @@ const performKeysendMessage = ({ destination_key, route_hint, amount, msg, succe
         extra_tlv,
     };
     try {
+        logger_1.sphinxLogger.info(`signAndSendBeingCalled`, logger_1.logging.Network);
         const r = yield (0, network_1.signAndSend)(opts, sender);
         // console.log("=> keysend to new contact")
+        logger_1.sphinxLogger.info(`finsihed signAndSendBeingCalled`, logger_1.logging.Network);
         if (success)
             success(r);
     }

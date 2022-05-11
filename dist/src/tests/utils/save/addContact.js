@@ -22,8 +22,11 @@ function addContact(t, node1, node2) {
             status: 1,
             route_hint: node2.routeHint || '',
         };
+        console.log(body);
+        console.log(node1);
         //node1 adds node2 as contact
         const add = yield http.post(node1.external_ip + '/contacts', (0, helpers_1.makeArgs)(node1, body));
+        console.log(add);
         t.true(typeof add.response === 'object', 'add contact should return object');
         //create node2 id based on the post response
         var node2id = add && add.response && add.response.id;
