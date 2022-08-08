@@ -164,7 +164,7 @@ export async function getLsat(
     const lsat: LsatResponse = await models.Lsat.findOne({
       where: {
         tenant,
-        [Op.or]: [{ identifier }, { issuer: issuer, path: path }],
+        [Op.or]: [{ identifier }, { issuer: issuer, paths: path }],
       },
       attributes: lsatResponseAttributes,
     })
