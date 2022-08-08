@@ -155,16 +155,18 @@ export async function getLsat(
   const paths = req.params.paths
 
   let errorResponse = `LSAT with identifier ${identifier} not found`
-  if (!identifier)
+  let whereEquals = { identifier }
+  if (!identifier) {
     errorResponse = `LSAT with issuer ${issuer} and path ${paths} not found`
-
+    whereEquals = { issuer: issuer, paths: paths }
+  }
   sphinxLogger.info(`=> getLsat`, logging.Express)
 
   try {
     const lsat: LsatResponse = await models.Lsat.findOne({
       where: {
         tenant,
-        [Op.or]: [{ identifier }, { issuer: issuer, paths: paths }],
+        [Op.or]: [whereEquals],
       },
       attributes: lsatResponseAttributes,
     })
