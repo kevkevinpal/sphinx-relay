@@ -152,7 +152,7 @@ export async function getLsat(
   const tenant = req.owner.id
   const identifier = req.params.identifier
   const issuer = req.params.issuer
-  const path = req.params.path
+  const paths = req.params.paths
 
   let errorResponse = `LSAT with identifier ${identifier} not found`
   if (!identifier)
