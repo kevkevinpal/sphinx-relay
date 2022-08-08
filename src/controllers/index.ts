@@ -164,7 +164,7 @@ export async function set(app) {
   })
 
   app.get('/lsats', lsats.listLsats)
-  app.get('/lsats/:identifier', lsats.getLsat)
+  app.get('/lsats/:identifier:issuer:path', lsats.getLsat)
   app.post('/lsats', lsats.saveLsat)
   app.put('/lsats/:identifier', lsats.updateLsat)
   app.delete('/lsats/:identifier', lsats.deleteLsat)
