@@ -156,7 +156,7 @@ export async function getLsat(
 
   let errorResponse = `LSAT with identifier ${identifier} not found`
   if (!identifier)
-    errorResponse = `LSAT with issuer ${issuer} and path ${path} not found`
+    errorResponse = `LSAT with issuer ${issuer} and path ${paths} not found`
 
   sphinxLogger.info(`=> getLsat`, logging.Express)
 
@@ -164,7 +164,7 @@ export async function getLsat(
     const lsat: LsatResponse = await models.Lsat.findOne({
       where: {
         tenant,
-        [Op.or]: [{ identifier }, { issuer: issuer, paths: path }],
+        [Op.or]: [{ identifier }, { issuer: issuer, paths: paths }],
       },
       attributes: lsatResponseAttributes,
     })
