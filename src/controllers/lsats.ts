@@ -155,7 +155,9 @@ export async function getLsat(
   const paths = req.params.paths
 
   let errorResponse = `LSAT with identifier ${identifier} not found`
-  let whereEquals = { identifier }
+  let whereEquals: { identifier?: string; issuer?: string; paths?: string } = {
+    identifier,
+  }
   if (!identifier) {
     errorResponse = `LSAT with issuer ${issuer} and path ${paths} not found`
     whereEquals = { issuer: issuer, paths: paths }
