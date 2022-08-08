@@ -150,22 +150,31 @@ export async function getLsat(
 ): Promise<void | Response> {
   const tenant = req.owner.id
   const identifier = req.params.identifier
+  const issuer = req.params.issuer
+  const path = req.params.path
+
+  let errorResponse = `LSAT with identifier ${identifier} not found`
+  if (!identifier)
+    errorResponse = `LSAT with issuer ${issuer} and path ${path} not found`
 
   sphinxLogger.info(`=> getLsat`, logging.Express)
 
   try {
     const lsat: LsatResponse = await models.Lsat.findOne({
-      where: { tenant, identifier },
+      where: {
+        tenant,
+        [Op.or]: [{ identifier }, { issuer: issuer, path: path }],
+      },
       attributes: lsatResponseAttributes,
     })
     if (!lsat)
       return res.status(404).json({
         success: false,
-        error: `LSAT with identifier ${identifier} not found`,
+        error: errorResponse,
       })
     return success(res, { lsat })
   } catch (e) {
-    return failure(res, `could not retrieve lsat of id ${identifier}`)
+    return failure(res, errorResponse)
   }
 }
 
