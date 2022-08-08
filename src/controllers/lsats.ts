@@ -3,6 +3,7 @@ import { models } from '../models'
 import { logging, sphinxLogger } from '../utils/logger'
 import { failure, success } from '../utils/res'
 import * as Lightning from '../grpc/lightning'
+import { Op } from 'sequelize'
 import { Response, Request } from 'express'
 
 export interface LsatRequestBody {
