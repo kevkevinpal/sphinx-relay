@@ -14,6 +14,11 @@ jobs:
         uses: actions/checkout@v3
       - name: install npm dependencies
         run: npm i
+      - name: Prettify code
+        uses: creyD/prettier_action@v4.2
+        with:
+          # This part is also where you can pass other options, for example:
+          prettier_options: --write **/*.{js,md}  
       - name: lint and push automatic fixes
         run: |
           npm run lint || echo -n
