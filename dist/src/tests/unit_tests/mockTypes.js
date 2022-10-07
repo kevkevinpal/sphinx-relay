@@ -1,0 +1,63 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.mockNotificationType = exports.mockName = exports.mockContact = exports.mockChat = void 0;
+let date = new Date('2019-01-16');
+exports.mockChat = {
+    id: 0,
+    uuid: 'testString',
+    name: 'testString',
+    photoUrl: 'testString',
+    type: 2,
+    status: 0,
+    contactIds: 'testString',
+    isMuted: true,
+    createdAt: date,
+    updatedAt: date,
+    deleted: true,
+    groupKey: 'testString',
+    groupPrivateKey: 'testString',
+    host: 'testString',
+    priceToJoin: 0,
+    pricePerMessage: 0,
+    escrowAmount: 0,
+    escrowMillis: 0,
+    unlisted: true,
+    private: true,
+    ownerPubkey: 'testString',
+    seen: true,
+    appUrl: 'testString',
+    feedUrl: 'testString',
+    feedType: 0,
+    meta: 'testString',
+    myPhotoUrl: 'testString',
+    myAlias: 'testString',
+    skipBroadcastJoins: true,
+    pin: 'testString',
+};
+exports.mockContact = {
+    id: 0,
+    routeHint: 'testString1',
+    publicKey: 'testString1',
+    nodeAlias: 'testString1',
+    alias: 'testString1',
+    photoUrl: 'testString1',
+    privatePhoto: true,
+    isOwner: true,
+    deleted: true,
+    authToken: 'testString1',
+    remoteId: 0,
+    status: 0,
+    contactKey: 'testString1',
+    deviceId: 'testString1',
+    createdAt: date,
+    updatedAt: date,
+    fromGroup: true,
+    notificationSound: 'testString1',
+    lastActive: date,
+    tipAmount: 0,
+    priceToMeet: 0,
+    unmet: true,
+};
+exports.mockName = 'alice';
+exports.mockNotificationType = 'message';
+//# sourceMappingURL=mockTypes.js.map
