@@ -20,7 +20,7 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           shopt -s globstar
           npm run lint || echo -n
-          npx prettier --config .prettierrc --ignore-path .prettierignore -w *.ts src/**/*.ts .github/**/*.yml
+          npx prettier --config .prettierrc --ignore-path .prettierignore -w *.ts src/**/*.ts
           git add *.ts src
           git commit -m 'Lint and format code' || echo -n
           git push
