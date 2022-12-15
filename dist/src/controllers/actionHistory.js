@@ -25,6 +25,7 @@ function saveAction(req, res) {
             return (0, res_1.failure)(res, 'invalid type');
         if (!meta_data)
             return (0, res_1.failure)(res, 'invalid meta_data');
+        console.log('ACTION DATA', meta_data);
         try {
             yield models_1.models.ActionHistory.create({
                 tenant,

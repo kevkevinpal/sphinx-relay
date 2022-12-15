@@ -19,6 +19,8 @@ export async function saveAction(req: Req, res: Response) {
     return failure(res, 'invalid type')
   if (!meta_data) return failure(res, 'invalid meta_data')
 
+  console.log('ACTION DATA', meta_data)
+
   try {
     await models.ActionHistory.create({
       tenant,
