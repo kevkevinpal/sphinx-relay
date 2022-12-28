@@ -21,15 +21,6 @@ export function init() {
   const client = new Sphinx.Client()
   client.login('_', finalAction)
 
-  const nostrBot = await models.ChatBot.findOne({
-    where: {
-      chatId: chat.id,
-      botPrefix: '/nostr',
-      botType: constants.bot_types.builtin,
-      tenant: chat.tenant,
-    },
-  })
-
   //TODO: build NOSTR relay event
   const privateKey =
     'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw'
@@ -54,18 +45,30 @@ export function init() {
 
   pool.on('event', (relay, sub_id, ev) => {
     console.log('Event happend', ev)
+    try {
+      const nostrBot = await models.ChatBot.findOne({
+        where: {
+          chatId: chat.id,
+          botPrefix: '/nostr',
+          botType: constants.bot_types.builtin,
+          tenant: chat.tenant,
+        },
+      })
 
-    if (!nostrBot) return
-    let nostrBotMessage = ev.content
-    if (nostrBot && nostrBot.meta) {
-      nostrBotMessage = nostrBot.meta
+      if (!nostrBot) return
+      let nostrBotMessage = ev.content
+      if (nostrBot && nostrBot.meta) {
+        nostrBotMessage = nostrBot.meta
+      }
+      const resEmbed = new Sphinx.MessageEmbed()
+        .setAuthor('NostrBot')
+        .setDescription(nostrBotMessage)
+      setTimeout(() => {
+        message.channel.send({ embed: resEmbed })
+      }, 2500)
+    } catch (e) {
+      console.log('nostr message send failed')
     }
-    const resEmbed = new Sphinx.MessageEmbed()
-      .setAuthor('NostrBot')
-      .setDescription(nostrBotMessage)
-    setTimeout(() => {
-      message.channel.send({ embed: resEmbed })
-    }, 2500)
   })
 
   client.on(msg_types.MESSAGE, async (message: Sphinx.Message) => {
@@ -79,6 +82,14 @@ export function init() {
       const chat = await getTribeOwnersChatByUUID(message.channel.id)
 
       if (!(chat && chat.id)) return sphinxLogger.error(`=> nostrBot no chat`)
+      const nostrBot = await models.ChatBot.findOne({
+        where: {
+          chatId: chat.id,
+          botPrefix: '/nostr',
+          botType: constants.bot_types.builtin,
+          tenant: chat.tenant,
+        },
+      })
 
       if (!nostrBot) return
       let nostrBotMessage = 'sending nostr message'
@@ -137,7 +148,6 @@ export function init() {
         sig: sig,
       }
       console.log('nostr object', nostrObject)
-      pool.send(nostrObject)
 
       let nostrBotMessageFinal = 'finished sending nostr message'
       if (nostrBot && nostrBot.meta) {
