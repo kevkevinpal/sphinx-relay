@@ -41,8 +41,8 @@ export function init() {
       })
       if (!nostrBot) return
       let nostrBotMessage = 'sending nostr message'
-      if (chatBot && chatBot.meta) {
-        nostrBotMessage = chatBot.meta
+      if (nostrBot && nostrBot.meta) {
+        nostrBotMessage = nostrBot.meta
       }
       const resEmbed = new Sphinx.MessageEmbed()
         .setAuthor('NostrBot')
@@ -74,8 +74,8 @@ export function init() {
 
       //TODO: send NOSTR relay event
       let nostrBotMessageFinal = 'finished sending nostr message'
-      if (chatBot && chatBot.meta) {
-        nostrBotMessageFinal = chatBot.meta
+      if (nostrBot && nostrBot.meta) {
+        nostrBotMessageFinal = nostrBot.meta
       }
       const resEmbedFinal = new Sphinx.MessageEmbed()
         .setAuthor('NostrBot')
