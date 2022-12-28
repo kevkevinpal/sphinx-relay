@@ -24,7 +24,7 @@ const logger_1 = require("../utils/logger");
 const git_1 = require("./git");
 const msg_types = Sphinx.MSG_TYPE;
 const config = (0, config_1.loadConfig)();
-const builtinBots = ['welcome', 'loopout', 'git', 'badge'];
+const builtinBots = ['welcome', 'loopout', 'git', 'badge', 'nostr'];
 // else just message type
 const builtInBotMsgTypes = {
     welcome: [
@@ -37,6 +37,7 @@ const builtInBotNames = {
     loopout: 'LoopBot',
     git: 'GitBot',
     badge: 'BadgeBot',
+    nostr: 'NostrBot',
 };
 function init() {
     const client = new Sphinx.Client();
