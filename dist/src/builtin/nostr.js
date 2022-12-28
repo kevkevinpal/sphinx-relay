@@ -27,6 +27,14 @@ function init() {
     initted = true;
     const client = new Sphinx.Client();
     client.login('_', botapi_1.finalAction);
+    const nostrBot = yield models_1.models.ChatBot.findOne({
+        where: {
+            chatId: chat.id,
+            botPrefix: '/nostr',
+            botType: constants_1.default.bot_types.builtin,
+            tenant: chat.tenant,
+        },
+    });
     //TODO: build NOSTR relay event
     const privateKey = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw';
     const jb55 = '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667';
@@ -45,14 +53,6 @@ function init() {
     });
     pool.on('event', (relay, sub_id, ev) => {
         console.log('Event happend', ev);
-        const nostrBot = yield models_1.models.ChatBot.findOne({
-            where: {
-                chatId: chat.id,
-                botPrefix: '/nostr',
-                botType: constants_1.default.bot_types.builtin,
-                tenant: chat.tenant,
-            },
-        });
         if (!nostrBot)
             return;
         let nostrBotMessage = ev.content;
@@ -76,14 +76,6 @@ function init() {
             const chat = yield (0, tribes_1.getTribeOwnersChatByUUID)(message.channel.id);
             if (!(chat && chat.id))
                 return logger_1.sphinxLogger.error(`=> nostrBot no chat`);
-            const nostrBot = yield models_1.models.ChatBot.findOne({
-                where: {
-                    chatId: chat.id,
-                    botPrefix: '/nostr',
-                    botType: constants_1.default.bot_types.builtin,
-                    tenant: chat.tenant,
-                },
-            });
             if (!nostrBot)
                 return;
             let nostrBotMessage = 'sending nostr message';

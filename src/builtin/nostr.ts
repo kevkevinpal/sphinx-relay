@@ -21,6 +21,15 @@ export function init() {
   const client = new Sphinx.Client()
   client.login('_', finalAction)
 
+  const nostrBot = await models.ChatBot.findOne({
+    where: {
+      chatId: chat.id,
+      botPrefix: '/nostr',
+      botType: constants.bot_types.builtin,
+      tenant: chat.tenant,
+    },
+  })
+
   //TODO: build NOSTR relay event
   const privateKey =
     'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw'
@@ -45,14 +54,6 @@ export function init() {
 
   pool.on('event', (relay, sub_id, ev) => {
     console.log('Event happend', ev)
-    const nostrBot = await models.ChatBot.findOne({
-      where: {
-        chatId: chat.id,
-        botPrefix: '/nostr',
-        botType: constants.bot_types.builtin,
-        tenant: chat.tenant,
-      },
-    })
 
     if (!nostrBot) return
     let nostrBotMessage = ev.content
@@ -78,14 +79,6 @@ export function init() {
       const chat = await getTribeOwnersChatByUUID(message.channel.id)
 
       if (!(chat && chat.id)) return sphinxLogger.error(`=> nostrBot no chat`)
-      const nostrBot = await models.ChatBot.findOne({
-        where: {
-          chatId: chat.id,
-          botPrefix: '/nostr',
-          botType: constants.bot_types.builtin,
-          tenant: chat.tenant,
-        },
-      })
 
       if (!nostrBot) return
       let nostrBotMessage = 'sending nostr message'
