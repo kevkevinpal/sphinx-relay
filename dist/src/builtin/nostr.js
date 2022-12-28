@@ -17,6 +17,7 @@ const models_1 = require("../models");
 const constants_1 = require("../constants");
 const tribes_1 = require("../utils/tribes");
 const logger_1 = require("../utils/logger");
+const secp256k1 = require("secp256k1");
 const { RelayPool } = require('nostr');
 const msg_types = Sphinx.MSG_TYPE;
 let initted = false;
@@ -27,6 +28,7 @@ function init() {
     const client = new Sphinx.Client();
     client.login('_', botapi_1.finalAction);
     //TODO: build NOSTR relay event
+    const privateKey = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw';
     const jb55 = '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667';
     const damus = 'wss://relay.damus.io';
     const scsi = 'wss://nostr-pub.wellorder.net';
@@ -43,6 +45,26 @@ function init() {
     });
     pool.on('event', (relay, sub_id, ev) => {
         console.log('Event happend', ev);
+        const nostrBot = yield models_1.models.ChatBot.findOne({
+            where: {
+                chatId: chat.id,
+                botPrefix: '/nostr',
+                botType: constants_1.default.bot_types.builtin,
+                tenant: chat.tenant,
+            },
+        });
+        if (!nostrBot)
+            return;
+        let nostrBotMessage = ev.content;
+        if (nostrBot && nostrBot.meta) {
+            nostrBotMessage = nostrBot.meta;
+        }
+        const resEmbed = new Sphinx.MessageEmbed()
+            .setAuthor('NostrBot')
+            .setDescription(nostrBotMessage);
+        setTimeout(() => {
+            message.channel.send({ embed: resEmbed });
+        }, 2500);
     });
     client.on(msg_types.MESSAGE, (message) => __awaiter(this, void 0, void 0, function* () {
         const isNormalMessage = message.type === constants_1.default.message_types.message;
@@ -75,6 +97,47 @@ function init() {
                 message.channel.send({ embed: resEmbed });
             }, 2500);
             //TODO: send NOSTR relay event
+            // We need id to be generated
+            /* We
+                               *{
+        "id": <32-bytes sha256 of the the serialized event data>
+        "pubkey": <32-bytes hex-encoded public key of the event creator>,
+        "created_at": <unix timestamp in seconds>,
+        "kind": <integer>,
+        "tags": [
+          ["e", <32-bytes hex of the id of another event>, <recommended relay URL>],
+          ["p", <32-bytes hex of the key>, <recommended relay URL>],
+          ... // other kinds of tags may be included later
+        ],
+        "content": <arbitrary string>,
+        "sig": <64-bytes signature of the sha256 hash of the serialized event data, which is the same as the "id" field>
+      }
+                              */
+            //
+            const serializedEventData = [
+                0,
+                '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',
+                unix.Now(),
+                1,
+                [],
+                messageText,
+            ];
+            const id = crypto
+                .createHash('sha256')
+                .update(serializedEventData)
+                .digest('base64');
+            const sig = secp256k1.ecdsaSign(id, privateKey);
+            let nostrObject = {
+                id: id,
+                pubkey: '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',
+                created_at: unix.Timestamp(),
+                kind: 1,
+                tags: [],
+                content: messageText,
+                sig: sig,
+            };
+            console.log('nostr object', nostrObject);
+            pool.send(nostrObject);
             let nostrBotMessageFinal = 'finished sending nostr message';
             if (nostrBot && nostrBot.meta) {
                 nostrBotMessageFinal = nostrBot.meta;
