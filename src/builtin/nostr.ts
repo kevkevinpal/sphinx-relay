@@ -45,30 +45,28 @@ export function init() {
 
   pool.on('event', (relay, sub_id, ev) => {
     console.log('Event happend', ev)
-    try {
-      const nostrBot = await models.ChatBot.findOne({
-        where: {
-          chatId: chat.id,
-          botPrefix: '/nostr',
-          botType: constants.bot_types.builtin,
-          tenant: chat.tenant,
-        },
-      })
+    /*
+    const nostrBot = await models.ChatBot.findOne({
+      where: {
+        chatId: chat.id,
+        botPrefix: '/nostr',
+        botType: constants.bot_types.builtin,
+        tenant: chat.tenant,
+      },
+    })
 
-      if (!nostrBot) return
-      let nostrBotMessage = ev.content
-      if (nostrBot && nostrBot.meta) {
-        nostrBotMessage = nostrBot.meta
-      }
-      const resEmbed = new Sphinx.MessageEmbed()
-        .setAuthor('NostrBot')
-        .setDescription(nostrBotMessage)
-      setTimeout(() => {
-        message.channel.send({ embed: resEmbed })
-      }, 2500)
-    } catch (e) {
-      console.log('nostr message send failed')
+    if (!nostrBot) return
+    let nostrBotMessage = ev.content
+    if (nostrBot && nostrBot.meta) {
+      nostrBotMessage = nostrBot.meta
     }
+    const resEmbed = new Sphinx.MessageEmbed()
+      .setAuthor('NostrBot')
+      .setDescription(nostrBotMessage)
+    setTimeout(() => {
+      message.channel.send({ embed: resEmbed })
+    }, 2500)
+									*/
   })
 
   client.on(msg_types.MESSAGE, async (message: Sphinx.Message) => {
@@ -137,7 +135,7 @@ export function init() {
         .digest('base64')
 
       const sig = secp256k1.ecdsaSign(id, privateKey)
-      let nostrObject = {
+      const nostrObject = {
         id: id,
         pubkey:
           '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',

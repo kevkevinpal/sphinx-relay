@@ -45,31 +45,28 @@ function init() {
     });
     pool.on('event', (relay, sub_id, ev) => {
         console.log('Event happend', ev);
-        try {
-            const nostrBot = yield models_1.models.ChatBot.findOne({
-                where: {
-                    chatId: chat.id,
-                    botPrefix: '/nostr',
-                    botType: constants_1.default.bot_types.builtin,
-                    tenant: chat.tenant,
-                },
-            });
-            if (!nostrBot)
-                return;
-            let nostrBotMessage = ev.content;
-            if (nostrBot && nostrBot.meta) {
-                nostrBotMessage = nostrBot.meta;
-            }
-            const resEmbed = new Sphinx.MessageEmbed()
-                .setAuthor('NostrBot')
-                .setDescription(nostrBotMessage);
-            setTimeout(() => {
-                message.channel.send({ embed: resEmbed });
-            }, 2500);
+        /*
+        const nostrBot = await models.ChatBot.findOne({
+          where: {
+            chatId: chat.id,
+            botPrefix: '/nostr',
+            botType: constants.bot_types.builtin,
+            tenant: chat.tenant,
+          },
+        })
+    
+        if (!nostrBot) return
+        let nostrBotMessage = ev.content
+        if (nostrBot && nostrBot.meta) {
+          nostrBotMessage = nostrBot.meta
         }
-        catch (e) {
-            console.log('nostr message send failed');
-        }
+        const resEmbed = new Sphinx.MessageEmbed()
+          .setAuthor('NostrBot')
+          .setDescription(nostrBotMessage)
+        setTimeout(() => {
+          message.channel.send({ embed: resEmbed })
+        }, 2500)
+                                        */
     });
     client.on(msg_types.MESSAGE, (message) => __awaiter(this, void 0, void 0, function* () {
         const isNormalMessage = message.type === constants_1.default.message_types.message;
@@ -132,7 +129,7 @@ function init() {
                 .update(serializedEventData)
                 .digest('base64');
             const sig = secp256k1.ecdsaSign(id, privateKey);
-            let nostrObject = {
+            const nostrObject = {
                 id: id,
                 pubkey: '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',
                 created_at: unix.Timestamp(),
