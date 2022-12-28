@@ -76,11 +76,11 @@ function init() {
             if (chatBot && chatBot.meta) {
                 nostrBotMessageFinal = chatBot.meta;
             }
-            const resEmbed = new Sphinx.MessageEmbed()
+            const resEmbedFinal = new Sphinx.MessageEmbed()
                 .setAuthor('NostrBot')
                 .setDescription(nostrBotMessageFinal);
             setTimeout(() => {
-                message.channel.send({ embed: resEmbed });
+                message.channel.send({ embed: resEmbedFinal });
             }, 2500);
             return;
         }
