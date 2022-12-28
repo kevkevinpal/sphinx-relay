@@ -26,6 +26,24 @@ function init() {
     initted = true;
     const client = new Sphinx.Client();
     client.login('_', botapi_1.finalAction);
+    //TODO: build NOSTR relay event
+    const jb55 = 'npub1y5hq3gq4rve529p4k82pqa0gy8s925xq65885v6tw6zyydffgensnn9myy';
+    const damus = 'wss://relay.damus.io';
+    const scsi = 'wss://nostr-pub.wellorder.net';
+    const relays = [damus, scsi];
+    const pool = RelayPool(relays);
+    pool.on('open', (relay) => {
+        relay.subscribe('djlksafhjkdslajkdfhjksajk', {
+            limit: 10,
+            authors: [jb55],
+        });
+    });
+    pool.on('eose', (relay) => {
+        relay.close();
+    });
+    pool.on('event', (relay, sub_id, ev) => {
+        console.log('Event happend', ev);
+    });
     client.on(msg_types.MESSAGE, (message) => __awaiter(this, void 0, void 0, function* () {
         const isNormalMessage = message.type === constants_1.default.message_types.message;
         const messageText = message && message.content;
@@ -56,21 +74,6 @@ function init() {
             setTimeout(() => {
                 message.channel.send({ embed: resEmbed });
             }, 2500);
-            //TODO: build NOSTR relay event
-            const jb55 = 'npub1y5hq3gq4rve529p4k82pqa0gy8s925xq65885v6tw6zyydffgensnn9myy';
-            const damus = 'wss://relay.damus.io';
-            const scsi = 'wss://nostr-pub.wellorder.net';
-            const relays = [damus, scsi];
-            const pool = RelayPool(relays);
-            pool.on('open', (relay) => {
-                relay.subscribe('subid', { limit: 2, kinds: [1], authors: [jb55] });
-            });
-            pool.on('eose', (relay) => {
-                relay.close();
-            });
-            pool.on('event', (relay, sub_id, ev) => {
-                console.log(ev);
-            });
             //TODO: send NOSTR relay event
             let nostrBotMessageFinal = 'finished sending nostr message';
             if (nostrBot && nostrBot.meta) {
