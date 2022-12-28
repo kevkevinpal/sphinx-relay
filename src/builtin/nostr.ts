@@ -21,7 +21,8 @@ export function init() {
   client.login('_', finalAction)
 
   //TODO: build NOSTR relay event
-  const jb55 = 'npub1y5hq3gq4rve529p4k82pqa0gy8s925xq65885v6tw6zyydffgensnn9myy'
+  const jb55 =
+    '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667'
   const damus = 'wss://relay.damus.io'
   const scsi = 'wss://nostr-pub.wellorder.net'
   const relays = [damus, scsi]
