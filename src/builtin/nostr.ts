@@ -73,13 +73,13 @@ export function init() {
       })
 
       //TODO: send NOSTR relay event
-      let nostrBotMessage = 'finished sending nostr message'
+      let nostrBotMessageFinal = 'finished sending nostr message'
       if (chatBot && chatBot.meta) {
-        nostrBotMessage = chatBot.meta
+        nostrBotMessageFinal = chatBot.meta
       }
       const resEmbed = new Sphinx.MessageEmbed()
         .setAuthor('NostrBot')
-        .setDescription(nostrBotMessage)
+        .setDescription(nostrBotMessageFinal)
       setTimeout(() => {
         message.channel.send({ embed: resEmbed })
       }, 2500)
