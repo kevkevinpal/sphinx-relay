@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.init = void 0;
+require("websocket-polyfill");
 const Sphinx = require("sphinx-bot");
 const botapi_1 = require("../controllers/botapi");
 const models_1 = require("../models");
