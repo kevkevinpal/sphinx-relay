@@ -81,7 +81,10 @@ export function init() {
   client.on(msg_types.MESSAGE, async (message: Sphinx.Message) => {
     const isNormalMessage = message.type === constants.message_types.message
     const messageText =
-      'sent from: ' + message.member.nickname + (message && message.content)
+      'sent from: ' +
+      message.member.nickname +
+      '\n' +
+      (message && message.content)
 
     // Return if its anything besides a regular message type
     if (!isNormalMessage) return
