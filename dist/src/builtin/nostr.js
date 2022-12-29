@@ -266,7 +266,7 @@ function sendEvent() {
                 console.log(`failed to publish to ${relay.url}: ${reason}`);
             });
             console.log('Calling sendEvent');
-            setTimeout(() => { }, 20000);
+            yield setTimeout(() => { }, 20000);
             yield relay.close();
         }
         catch (e) {
