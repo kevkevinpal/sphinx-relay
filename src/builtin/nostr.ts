@@ -234,12 +234,14 @@ export function init() {
 async function sendEvent() {
   try {
     console.log('Calling sendEvent')
-    /*const pk =
-      '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667'
-    const sk = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw'
-		*/
+    const pk =
+      'd73856150eecd3ceca336c0f40d6a8145e398a3cf38d2082c06499e2921513a6'
+    const sk =
+      '6d522abd7e123c57e55abb8439a3fbbdf54a22b502dae1806e61965ca26f3a9e'
+    /*
     let sk = generatePrivateKey()
     let pk = getPublicKey(sk)
+					*/
     console.log('Calling sendEvent', pk, '----', sk)
     const relay = relayInit('wss://nostr.bitcoiner.social')
     console.log('Calling sendEvent')
@@ -275,15 +277,13 @@ async function sendEvent() {
     console.log('Calling sendEvent')
     pub.on('seen', () => {
       console.log(`we saw the event on ${relay.url}`)
+      await relay.close()
     })
     console.log('Calling sendEvent')
     pub.on('failed', (reason) => {
       console.log(`failed to publish to ${relay.url}: ${reason}`)
+      await relay.close()
     })
-
-    console.log('Calling sendEvent')
-    await setTimeout(() => {}, 20000)
-    //await relay.close()
   } catch (e) {
     console.log('sendEventError: ', e)
   }
