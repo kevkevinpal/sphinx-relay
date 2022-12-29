@@ -46,8 +46,11 @@ function init() {
                 chat.escrowAmount +
                 ' for ' +
                 chat.escrowMillis +
-                'Milliseconds';
-            '\n' + message.member.nickname + ':\n' + (message && message.content);
+                'Milliseconds' +
+                '\n' +
+                message.member.nickname +
+                ':\n' +
+                (message && message.content);
             if (!(chat && chat.id))
                 return logger_1.sphinxLogger.error(`=> nostrBot no chat`);
             const nostrBot = yield models_1.models.ChatBot.findOne({
