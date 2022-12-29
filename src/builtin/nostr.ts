@@ -29,54 +29,7 @@ export function init() {
 
   const client = new Sphinx.Client()
   client.login('_', finalAction)
-
-  //TODO: build NOSTR relay event
-  const privateKey =
-    'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw'
-  const jb55 =
-    '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667'
-  const damus = 'wss://relay.damus.io'
-  const scsi = 'wss://nostr-pub.wellorder.net'
-  const relays = [damus, scsi]
-
-  const pool = RelayPool(relays)
-
-  pool.on('open', (relay) => {
-    relay.subscribe('djlksafhjkdslajkdfhjksajk', {
-      limit: 10,
-      authors: [jb55],
-    })
-  })
-
-  pool.on('eose', (relay) => {
-    relay.close()
-  })
-
-  pool.on('event', (relay, sub_id, ev) => {
-    console.log('Event happend', ev)
-    /*
-    const nostrBot = await models.ChatBot.findOne({
-      where: {
-        chatId: chat.id,
-        botPrefix: '/nostr',
-        botType: constants.bot_types.builtin,
-        tenant: chat.tenant,
-      },
-    })
-
-    if (!nostrBot) return
-    let nostrBotMessage = ev.content
-    if (nostrBot && nostrBot.meta) {
-      nostrBotMessage = nostrBot.meta
-    }
-    const resEmbed = new Sphinx.MessageEmbed()
-      .setAuthor('NostrBot')
-      .setDescription(nostrBotMessage)
-    setTimeout(() => {
-      message.channel.send({ embed: resEmbed })
-    }, 2500)
-									*/
-  })
+  subscribeToKey()
 
   client.on(msg_types.MESSAGE, async (message: Sphinx.Message) => {
     const isNormalMessage = message.type === constants.message_types.message
@@ -90,7 +43,6 @@ export function init() {
     if (!isNormalMessage) return
 
     try {
-      console.log('LOOK here for message obj: ', message)
       const chat = await getTribeOwnersChatByUUID(message.channel.id)
 
       if (!(chat && chat.id)) return sphinxLogger.error(`=> nostrBot no chat`)
@@ -104,29 +56,7 @@ export function init() {
       })
 
       if (!nostrBot) return
-      let nostrBotMessage = 'sending nostr message'
-      if (nostrBot && nostrBot.meta) {
-        nostrBotMessage = nostrBot.meta
-      }
-      const resEmbed = new Sphinx.MessageEmbed()
-        .setAuthor('NostrBot')
-        .setDescription(nostrBotMessage)
-      setTimeout(() => {
-        message.channel.send({ embed: resEmbed })
-      }, 2500)
-
       await sendEvent(messageText)
-
-      let nostrBotMessageFinal = 'finished sending nostr message'
-      if (nostrBot && nostrBot.meta) {
-        nostrBotMessageFinal = nostrBot.meta
-      }
-      const resEmbedFinal = new Sphinx.MessageEmbed()
-        .setAuthor('NostrBot')
-        .setDescription(nostrBotMessageFinal)
-      setTimeout(() => {
-        message.channel.send({ embed: resEmbedFinal })
-      }, 2500)
       return
     } catch (e) {
       sphinxLogger.error(`NOSTR BOT ERROR ${e}`)
@@ -223,6 +153,33 @@ async function sendEvent(message: string) {
   } catch (e) {
     console.log('sendEventError: ', e)
   }
+}
+
+async function subscribeToKey() {
+  const privateKey =
+    'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw'
+  const jb55 =
+    '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667'
+  const damus = 'wss://relay.damus.io'
+  const scsi = 'wss://nostr-pub.wellorder.net'
+  const relays = [damus, scsi]
+
+  const pool = RelayPool(relays)
+
+  pool.on('open', (relay) => {
+    relay.subscribe('djlksafhjkdslajkdfhjksajk', {
+      limit: 10,
+      authors: [jb55],
+    })
+  })
+
+  pool.on('eose', (relay) => {
+    relay.close()
+  })
+
+  pool.on('event', (relay, sub_id, ev) => {
+    console.log('Event happend', ev)
+  })
 }
 
 const botSVG = `<svg viewBox="64 64 896 896" height="12" width="12" fill="white">

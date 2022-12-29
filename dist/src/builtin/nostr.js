@@ -28,47 +28,7 @@ function init() {
     initted = true;
     const client = new Sphinx.Client();
     client.login('_', botapi_1.finalAction);
-    //TODO: build NOSTR relay event
-    const privateKey = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw';
-    const jb55 = '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667';
-    const damus = 'wss://relay.damus.io';
-    const scsi = 'wss://nostr-pub.wellorder.net';
-    const relays = [damus, scsi];
-    const pool = RelayPool(relays);
-    pool.on('open', (relay) => {
-        relay.subscribe('djlksafhjkdslajkdfhjksajk', {
-            limit: 10,
-            authors: [jb55],
-        });
-    });
-    pool.on('eose', (relay) => {
-        relay.close();
-    });
-    pool.on('event', (relay, sub_id, ev) => {
-        console.log('Event happend', ev);
-        /*
-        const nostrBot = await models.ChatBot.findOne({
-          where: {
-            chatId: chat.id,
-            botPrefix: '/nostr',
-            botType: constants.bot_types.builtin,
-            tenant: chat.tenant,
-          },
-        })
-    
-        if (!nostrBot) return
-        let nostrBotMessage = ev.content
-        if (nostrBot && nostrBot.meta) {
-          nostrBotMessage = nostrBot.meta
-        }
-        const resEmbed = new Sphinx.MessageEmbed()
-          .setAuthor('NostrBot')
-          .setDescription(nostrBotMessage)
-        setTimeout(() => {
-          message.channel.send({ embed: resEmbed })
-        }, 2500)
-                                        */
-    });
+    subscribeToKey();
     client.on(msg_types.MESSAGE, (message) => __awaiter(this, void 0, void 0, function* () {
         const isNormalMessage = message.type === constants_1.default.message_types.message;
         const messageText = 'sent from: ' +
@@ -79,7 +39,6 @@ function init() {
         if (!isNormalMessage)
             return;
         try {
-            console.log('LOOK here for message obj: ', message);
             const chat = yield (0, tribes_1.getTribeOwnersChatByUUID)(message.channel.id);
             if (!(chat && chat.id))
                 return logger_1.sphinxLogger.error(`=> nostrBot no chat`);
@@ -93,27 +52,7 @@ function init() {
             });
             if (!nostrBot)
                 return;
-            let nostrBotMessage = 'sending nostr message';
-            if (nostrBot && nostrBot.meta) {
-                nostrBotMessage = nostrBot.meta;
-            }
-            const resEmbed = new Sphinx.MessageEmbed()
-                .setAuthor('NostrBot')
-                .setDescription(nostrBotMessage);
-            setTimeout(() => {
-                message.channel.send({ embed: resEmbed });
-            }, 2500);
             yield sendEvent(messageText);
-            let nostrBotMessageFinal = 'finished sending nostr message';
-            if (nostrBot && nostrBot.meta) {
-                nostrBotMessageFinal = nostrBot.meta;
-            }
-            const resEmbedFinal = new Sphinx.MessageEmbed()
-                .setAuthor('NostrBot')
-                .setDescription(nostrBotMessageFinal);
-            setTimeout(() => {
-                message.channel.send({ embed: resEmbedFinal });
-            }, 2500);
             return;
         }
         catch (e) {
@@ -206,6 +145,28 @@ function sendEvent(message) {
         catch (e) {
             console.log('sendEventError: ', e);
         }
+    });
+}
+function subscribeToKey() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const privateKey = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw';
+        const jb55 = '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667';
+        const damus = 'wss://relay.damus.io';
+        const scsi = 'wss://nostr-pub.wellorder.net';
+        const relays = [damus, scsi];
+        const pool = RelayPool(relays);
+        pool.on('open', (relay) => {
+            relay.subscribe('djlksafhjkdslajkdfhjksajk', {
+                limit: 10,
+                authors: [jb55],
+            });
+        });
+        pool.on('eose', (relay) => {
+            relay.close();
+        });
+        pool.on('event', (relay, sub_id, ev) => {
+            console.log('Event happend', ev);
+        });
     });
 }
 const botSVG = `<svg viewBox="64 64 896 896" height="12" width="12" fill="white">
