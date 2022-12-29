@@ -73,7 +73,7 @@ function init() {
         const isNormalMessage = message.type === constants_1.default.message_types.message;
         const messageText = 'sent from: ' +
             message.member.nickname +
-            '\n' +
+            '\n\n' +
             (message && message.content);
         // Return if its anything besides a regular message type
         if (!isNormalMessage)

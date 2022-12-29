@@ -83,7 +83,7 @@ export function init() {
     const messageText =
       'sent from: ' +
       message.member.nickname +
-      '\n' +
+      '\n\n' +
       (message && message.content)
 
     // Return if its anything besides a regular message type
