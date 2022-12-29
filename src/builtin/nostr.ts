@@ -275,12 +275,12 @@ async function sendEvent() {
       console.log(`${relay.url} has accepted our event`)
     })
     console.log('Calling sendEvent')
-    pub.on('seen', () => {
+    pub.on('seen', async () => {
       console.log(`we saw the event on ${relay.url}`)
       await relay.close()
     })
     console.log('Calling sendEvent')
-    pub.on('failed', (reason) => {
+    pub.on('failed', async (reason) => {
       console.log(`failed to publish to ${relay.url}: ${reason}`)
       await relay.close()
     })

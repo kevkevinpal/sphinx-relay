@@ -258,15 +258,15 @@ function sendEvent() {
                 console.log(`${relay.url} has accepted our event`);
             });
             console.log('Calling sendEvent');
-            pub.on('seen', () => {
+            pub.on('seen', () => __awaiter(this, void 0, void 0, function* () {
                 console.log(`we saw the event on ${relay.url}`);
                 yield relay.close();
-            });
+            }));
             console.log('Calling sendEvent');
-            pub.on('failed', (reason) => {
+            pub.on('failed', (reason) => __awaiter(this, void 0, void 0, function* () {
                 console.log(`failed to publish to ${relay.url}: ${reason}`);
                 yield relay.close();
-            });
+            }));
         }
         catch (e) {
             console.log('sendEventError: ', e);
