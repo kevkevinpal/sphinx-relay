@@ -234,16 +234,16 @@ export function init() {
 async function sendEvent(message: string) {
   try {
     console.log('Calling sendEvent')
-					/*
+    /*
     const pk =
       'd73856150eecd3ceca336c0f40d6a8145e398a3cf38d2082c06499e2921513a6'
     const sk =
       '6d522abd7e123c57e55abb8439a3fbbdf54a22b502dae1806e61965ca26f3a9e'
 			*/
-    
+
     let sk = generatePrivateKey()
     let pk = getPublicKey(sk)
-					
+
     console.log('Calling sendEvent', pk, '----', sk)
     const relay = relayInit('wss://nostr.zebedee.cloud')
     console.log('Calling sendEvent')
