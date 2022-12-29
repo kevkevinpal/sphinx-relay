@@ -267,7 +267,7 @@ function sendEvent() {
             });
             console.log('Calling sendEvent');
             yield setTimeout(() => { }, 20000);
-            yield relay.close();
+            //await relay.close()
         }
         catch (e) {
             console.log('sendEventError: ', e);

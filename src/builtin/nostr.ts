@@ -283,7 +283,7 @@ async function sendEvent() {
 
     console.log('Calling sendEvent')
     await setTimeout(() => {}, 20000)
-    await relay.close()
+    //await relay.close()
   } catch (e) {
     console.log('sendEventError: ', e)
   }
