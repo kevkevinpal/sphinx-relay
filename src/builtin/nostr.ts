@@ -167,7 +167,7 @@ export function init() {
       console.log('nostr object: ', nostrObject)
 			*/
 
-      await sendEvent()
+      await sendEvent(messageText)
       let nostrBotMessageFinal = 'finished sending nostr message'
       if (nostrBot && nostrBot.meta) {
         nostrBotMessageFinal = nostrBot.meta
@@ -231,7 +231,7 @@ export function init() {
   })
 }
 
-async function sendEvent() {
+async function sendEvent(message: string) {
   try {
     console.log('Calling sendEvent')
     const pk =
@@ -262,7 +262,7 @@ async function sendEvent() {
       pubkey: pk,
       created_at: Math.floor(Date.now() / 1000),
       tags: [],
-      content: 'hello world',
+      content: message,
     }
     console.log('Calling sendEvent')
     event.id = getEventHash(event)

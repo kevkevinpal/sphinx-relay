@@ -154,7 +154,7 @@ function init() {
             }
             console.log('nostr object: ', nostrObject)
                   */
-            yield sendEvent();
+            yield sendEvent(messageText);
             let nostrBotMessageFinal = 'finished sending nostr message';
             if (nostrBot && nostrBot.meta) {
                 nostrBotMessageFinal = nostrBot.meta;
@@ -218,7 +218,7 @@ function init() {
     }));
 }
 exports.init = init;
-function sendEvent() {
+function sendEvent(message) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             console.log('Calling sendEvent');
@@ -246,7 +246,7 @@ function sendEvent() {
                 pubkey: pk,
                 created_at: Math.floor(Date.now() / 1000),
                 tags: [],
-                content: 'hello world',
+                content: message,
             };
             console.log('Calling sendEvent');
             event.id = (0, nostr_tools_1.getEventHash)(event);
