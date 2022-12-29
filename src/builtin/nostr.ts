@@ -167,7 +167,7 @@ export function init() {
       console.log('nostr object: ', nostrObject)
 			*/
 
-      sendEvent()
+      await sendEvent()
       let nostrBotMessageFinal = 'finished sending nostr message'
       if (nostrBot && nostrBot.meta) {
         nostrBotMessageFinal = nostrBot.meta
