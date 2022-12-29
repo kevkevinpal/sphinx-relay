@@ -71,7 +71,7 @@ function init() {
     });
     client.on(msg_types.MESSAGE, (message) => __awaiter(this, void 0, void 0, function* () {
         const isNormalMessage = message.type === constants_1.default.message_types.message;
-        const messageText = message && message.content;
+        const messageText = 'sent from: ' + message.member.nickname + (message && message.content);
         // Return if its anything besides a regular message type
         if (!isNormalMessage)
             return;
