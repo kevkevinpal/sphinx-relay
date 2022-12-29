@@ -234,16 +234,15 @@ export function init() {
 async function sendEvent(message: string) {
   try {
     console.log('Calling sendEvent')
-    /*
     const pk =
-      'd73856150eecd3ceca336c0f40d6a8145e398a3cf38d2082c06499e2921513a6'
+      'e9c7589adcf8c52f16ab929a1ffc074ad6400151ffccc19c571e1bc8b7fc81ab'
     const sk =
-      '6d522abd7e123c57e55abb8439a3fbbdf54a22b502dae1806e61965ca26f3a9e'
-			*/
+      'ef9769c3d36a811e48bcedbc2d6edacc69a52af834eeb0795317554829eb6d81'
 
+    /*
     let sk = generatePrivateKey()
     let pk = getPublicKey(sk)
-
+*/
     console.log('Calling sendEvent', pk, '----', sk)
     const relay = relayInit('wss://relay.nostr.info')
     console.log('Calling sendEvent')
