@@ -18,6 +18,7 @@ const constants_1 = require("../constants");
 const tribes_1 = require("../utils/tribes");
 const logger_1 = require("../utils/logger");
 const secp256k1 = require("secp256k1");
+const crypto = require("crypto");
 const { RelayPool } = require('nostr');
 const msg_types = Sphinx.MSG_TYPE;
 let initted = false;

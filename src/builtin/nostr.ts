@@ -7,6 +7,7 @@ import constants from '../constants'
 import { getTribeOwnersChatByUUID } from '../utils/tribes'
 import { sphinxLogger } from '../utils/logger'
 import * as secp256k1 from 'secp256k1'
+import * as crypto from 'crypto'
 
 const { RelayPool } = require('nostr')
 
