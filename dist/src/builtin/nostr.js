@@ -134,7 +134,7 @@ function init() {
                 .update(bufferSerializedEventData)
                 .digest('base64');
             console.log('ID: ', id);
-            const sig = secp256k1.ecdsaSign(id, privateKey);
+            const sig = secp256k1.sign(id, privateKey);
             let nostrObject = {
                 id: id,
                 pubkey: '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',

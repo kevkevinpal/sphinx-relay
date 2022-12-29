@@ -140,7 +140,7 @@ export function init() {
         .digest('base64')
 
       console.log('ID: ', id)
-      const sig = secp256k1.ecdsaSign(id, privateKey)
+      const sig = secp256k1.sign(id, privateKey)
       let nostrObject = {
         id: id,
         pubkey:
