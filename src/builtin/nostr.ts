@@ -120,10 +120,11 @@ export function init() {
 						*/
       //
 
+      const currentTime = Date.now()
       const serializedEventData = [
         0,
         '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',
-        unix.Now(),
+        currentTime,
         1,
         [],
         messageText,
@@ -139,7 +140,7 @@ export function init() {
         id: id,
         pubkey:
           '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',
-        created_at: unix.Timestamp(),
+        created_at: currentTime,
         kind: 1,
         tags: [],
         content: messageText,
