@@ -237,15 +237,20 @@ async function sendEvent() {
     const pk =
       '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667'
     const sk = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw'
+    console.log('Calling sendEvent')
     const relay = relayInit('wss://relay.example.com')
+    console.log('Calling sendEvent')
     await relay.connect()
+    console.log('Calling sendEvent')
 
     relay.on('connect', () => {
       console.log(`connected to ${relay.url}`)
     })
+    console.log('Calling sendEvent')
     relay.on('error', () => {
       console.log(`failed to connect to ${relay.url}`)
     })
+    console.log('Calling sendEvent')
 
     let event: any = {
       kind: 1,
@@ -254,20 +259,26 @@ async function sendEvent() {
       tags: [],
       content: 'hello world',
     }
+    console.log('Calling sendEvent')
     event.id = getEventHash(event)
+    console.log('Calling sendEvent')
     event.sig = signEvent(event, sk)
 
     let pub = relay.publish(event)
+    console.log('Calling sendEvent')
     pub.on('ok', () => {
       console.log(`${relay.url} has accepted our event`)
     })
+    console.log('Calling sendEvent')
     pub.on('seen', () => {
       console.log(`we saw the event on ${relay.url}`)
     })
+    console.log('Calling sendEvent')
     pub.on('failed', (reason) => {
       console.log(`failed to publish to ${relay.url}: ${reason}`)
     })
 
+    console.log('Calling sendEvent')
     await relay.close()
   } catch (e) {
     console.log('sendEventError: ', e)
