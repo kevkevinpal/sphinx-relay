@@ -41,6 +41,7 @@ export function init() {
 
     try {
       const chat = await getTribeOwnersChatByUUID(message.channel.id)
+      console.log(chat)
 
       if (!(chat && chat.id)) return sphinxLogger.error(`=> nostrBot no chat`)
       const nostrBot = await models.ChatBot.findOne({

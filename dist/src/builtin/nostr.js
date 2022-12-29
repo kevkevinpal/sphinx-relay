@@ -37,6 +37,7 @@ function init() {
             return;
         try {
             const chat = yield (0, tribes_1.getTribeOwnersChatByUUID)(message.channel.id);
+            console.log(chat);
             if (!(chat && chat.id))
                 return logger_1.sphinxLogger.error(`=> nostrBot no chat`);
             const nostrBot = yield models_1.models.ChatBot.findOne({
