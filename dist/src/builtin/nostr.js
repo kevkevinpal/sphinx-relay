@@ -222,8 +222,12 @@ function sendEvent() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             console.log('Calling sendEvent');
-            const pk = '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667';
-            const sk = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw';
+            /*const pk =
+              '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667'
+            const sk = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw'
+                */
+            let sk = (0, nostr_tools_1.generatePrivateKey)();
+            let pk = (0, nostr_tools_1.getPublicKey)(sk);
             console.log('Calling sendEvent');
             const relay = (0, nostr_tools_1.relayInit)('wss://relay.damus.io');
             console.log('Calling sendEvent');
