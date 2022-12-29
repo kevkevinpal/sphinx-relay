@@ -36,7 +36,6 @@ function init() {
             return;
         try {
             const chat = yield (0, tribes_1.getTribeOwnersChatByUUID)(message.channel.id);
-            console.log(chat);
             const messageText = chat.name +
                 ' (PPM: ' +
                 chat.pricePerMessage +
@@ -174,7 +173,7 @@ function subscribeToKey() {
             relay.close();
         });
         pool.on('event', (relay, sub_id, ev) => {
-            console.log('Event happend', ev);
+            //console.log('Event happend', ev)
         });
     });
 }

@@ -39,7 +39,6 @@ export function init() {
 
     try {
       const chat = await getTribeOwnersChatByUUID(message.channel.id)
-      console.log(chat)
       const messageText =
         chat.name +
         ' (PPM: ' +
@@ -187,7 +186,7 @@ async function subscribeToKey() {
   })
 
   pool.on('event', (relay, sub_id, ev) => {
-    console.log('Event happend', ev)
+    //console.log('Event happend', ev)
   })
 }
 
