@@ -43,9 +43,15 @@ export function init() {
       const messageText =
         chat.name +
         '\n' +
-        message.member.nickname +
-        ':\n' +
-        (message && message.content)
+        'Price Per Message: ' +
+        chat.pricePerMessage +
+        '\n' +
+        'Stake: ' +
+        chat.escrowAmount +
+        ' for ' +
+        chat.escrowMillis +
+        'Milliseconds'
+      '\n' + message.member.nickname + ':\n' + (message && message.content)
 
       if (!(chat && chat.id)) return sphinxLogger.error(`=> nostrBot no chat`)
       const nostrBot = await models.ChatBot.findOne({
