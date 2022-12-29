@@ -127,7 +127,7 @@ async function sendEvent(message: string) {
     const sk =
       'ef9769c3d36a811e48bcedbc2d6edacc69a52af834eeb0795317554829eb6d81'
 
-    const relay = relayInit('wss://relay.nostr.info')
+    const relay = relayInit('wss://relay.damus.io')
     await relay.connect()
 
     relay.on('connect', () => {

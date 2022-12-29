@@ -121,7 +121,7 @@ function sendEvent(message) {
             console.log('Calling sendEvent');
             const pk = 'e9c7589adcf8c52f16ab929a1ffc074ad6400151ffccc19c571e1bc8b7fc81ab';
             const sk = 'ef9769c3d36a811e48bcedbc2d6edacc69a52af834eeb0795317554829eb6d81';
-            const relay = (0, nostr_tools_1.relayInit)('wss://relay.nostr.info');
+            const relay = (0, nostr_tools_1.relayInit)('wss://relay.damus.io');
             yield relay.connect();
             relay.on('connect', () => {
                 console.log(`connected to ${relay.url}`);
