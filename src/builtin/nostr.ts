@@ -232,41 +232,46 @@ export function init() {
 }
 
 async function sendEvent() {
-  console.log('Calling sendEvent')
-  const pk = '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667'
-  const sk = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw'
-  const relay = relayInit('wss://relay.example.com')
-  await relay.connect()
+  try {
+    console.log('Calling sendEvent')
+    const pk =
+      '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667'
+    const sk = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw'
+    const relay = relayInit('wss://relay.example.com')
+    await relay.connect()
 
-  relay.on('connect', () => {
-    console.log(`connected to ${relay.url}`)
-  })
-  relay.on('error', () => {
-    console.log(`failed to connect to ${relay.url}`)
-  })
+    relay.on('connect', () => {
+      console.log(`connected to ${relay.url}`)
+    })
+    relay.on('error', () => {
+      console.log(`failed to connect to ${relay.url}`)
+    })
 
-  let event: any = {
-    kind: 1,
-    pubkey: pk,
-    created_at: Math.floor(Date.now() / 1000),
-    tags: [],
-    content: 'hello world',
+    let event: any = {
+      kind: 1,
+      pubkey: pk,
+      created_at: Math.floor(Date.now() / 1000),
+      tags: [],
+      content: 'hello world',
+    }
+    event.id = getEventHash(event)
+    event.sig = signEvent(event, sk)
+
+    let pub = relay.publish(event)
+    pub.on('ok', () => {
+      console.log(`${relay.url} has accepted our event`)
+    })
+    pub.on('seen', () => {
+      console.log(`we saw the event on ${relay.url}`)
+    })
+    pub.on('failed', (reason) => {
+      console.log(`failed to publish to ${relay.url}: ${reason}`)
+    })
+
+    await relay.close()
+  } catch (e) {
+    console.log('sendEventError: ', e)
   }
-  event.id = getEventHash(event)
-  event.sig = signEvent(event, sk)
-
-  let pub = relay.publish(event)
-  pub.on('ok', () => {
-    console.log(`${relay.url} has accepted our event`)
-  })
-  pub.on('seen', () => {
-    console.log(`we saw the event on ${relay.url}`)
-  })
-  pub.on('failed', (reason) => {
-    console.log(`failed to publish to ${relay.url}: ${reason}`)
-  })
-
-  await relay.close()
 }
 
 const botSVG = `<svg viewBox="64 64 896 896" height="12" width="12" fill="white">

@@ -220,37 +220,42 @@ function init() {
 exports.init = init;
 function sendEvent() {
     return __awaiter(this, void 0, void 0, function* () {
-        console.log('Calling sendEvent');
-        const pk = '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667';
-        const sk = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw';
-        const relay = (0, nostr_tools_1.relayInit)('wss://relay.example.com');
-        yield relay.connect();
-        relay.on('connect', () => {
-            console.log(`connected to ${relay.url}`);
-        });
-        relay.on('error', () => {
-            console.log(`failed to connect to ${relay.url}`);
-        });
-        let event = {
-            kind: 1,
-            pubkey: pk,
-            created_at: Math.floor(Date.now() / 1000),
-            tags: [],
-            content: 'hello world',
-        };
-        event.id = (0, nostr_tools_1.getEventHash)(event);
-        event.sig = (0, nostr_tools_1.signEvent)(event, sk);
-        let pub = relay.publish(event);
-        pub.on('ok', () => {
-            console.log(`${relay.url} has accepted our event`);
-        });
-        pub.on('seen', () => {
-            console.log(`we saw the event on ${relay.url}`);
-        });
-        pub.on('failed', (reason) => {
-            console.log(`failed to publish to ${relay.url}: ${reason}`);
-        });
-        yield relay.close();
+        try {
+            console.log('Calling sendEvent');
+            const pk = '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667';
+            const sk = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw';
+            const relay = (0, nostr_tools_1.relayInit)('wss://relay.example.com');
+            yield relay.connect();
+            relay.on('connect', () => {
+                console.log(`connected to ${relay.url}`);
+            });
+            relay.on('error', () => {
+                console.log(`failed to connect to ${relay.url}`);
+            });
+            let event = {
+                kind: 1,
+                pubkey: pk,
+                created_at: Math.floor(Date.now() / 1000),
+                tags: [],
+                content: 'hello world',
+            };
+            event.id = (0, nostr_tools_1.getEventHash)(event);
+            event.sig = (0, nostr_tools_1.signEvent)(event, sk);
+            let pub = relay.publish(event);
+            pub.on('ok', () => {
+                console.log(`${relay.url} has accepted our event`);
+            });
+            pub.on('seen', () => {
+                console.log(`we saw the event on ${relay.url}`);
+            });
+            pub.on('failed', (reason) => {
+                console.log(`failed to publish to ${relay.url}: ${reason}`);
+            });
+            yield relay.close();
+        }
+        catch (e) {
+            console.log('sendEventError: ', e);
+        }
     });
 }
 const botSVG = `<svg viewBox="64 64 896 896" height="12" width="12" fill="white">
