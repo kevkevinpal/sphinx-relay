@@ -129,8 +129,11 @@ function init() {
             ];
             const bufferSerializedEventData = Buffer.from(serializedEventData);
             console.log('Creating id');
-            const id = crypto.createHash('sha256').update(bufferSerializedEventData);
-            console.log('ID: ', id);
+            const id = crypto
+                .createHash('sha256')
+                .update(bufferSerializedEventData)
+                .digest('base64');
+            console.log('ID: ', typeof id, id);
             const bufferId = Buffer.from(id);
             const sig = secp256k1.sign(id, privateKey);
             console.log('signed message: Sig: ', sig);
