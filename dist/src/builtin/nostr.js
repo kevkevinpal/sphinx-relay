@@ -38,11 +38,11 @@ function init() {
             const chat = yield (0, tribes_1.getTribeOwnersChatByUUID)(message.channel.id);
             console.log(chat);
             const messageText = chat.name +
-                '(PPM: ' +
+                ' (PPM: ' +
                 chat.pricePerMessage +
-                'Stake: ' +
+                ', Stake: ' +
                 chat.escrowAmount +
-                ' for ' +
+                'sats for ' +
                 chat.escrowMillis / 60000 +
                 ' min)' +
                 '\n' +
