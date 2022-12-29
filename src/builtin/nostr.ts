@@ -131,10 +131,12 @@ export function init() {
         [],
         messageText,
       ]
+      const bufferSerializedEventData = Buffer.from(serializedEventData)
 
+      console.log('Creating id: ')
       const id = crypto
         .createHash('sha256')
-        .update(serializedEventData)
+        .update(bufferSerializedEventData)
         .digest('base64')
 
       console.log('ID: ', id)
