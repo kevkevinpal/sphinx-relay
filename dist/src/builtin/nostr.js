@@ -45,8 +45,8 @@ function init() {
                 'Stake: ' +
                 chat.escrowAmount +
                 ' for ' +
-                chat.escrowMillis +
-                'Milliseconds' +
+                chat.escrowMillis / 60000 +
+                ' minutes' +
                 '\n' +
                 message.member.nickname +
                 ':\n' +
