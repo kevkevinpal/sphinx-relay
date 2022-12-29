@@ -86,6 +86,7 @@ export function init() {
     if (!isNormalMessage) return
 
     try {
+      console.log('LOOK here for message obj: ', message)
       const chat = await getTribeOwnersChatByUUID(message.channel.id)
 
       if (!(chat && chat.id)) return sphinxLogger.error(`=> nostrBot no chat`)
@@ -110,64 +111,8 @@ export function init() {
         message.channel.send({ embed: resEmbed })
       }, 2500)
 
-      //TODO: send NOSTR relay event
-      // We need id to be generated
-      /* We
-						 *{
-  "id": <32-bytes sha256 of the the serialized event data>
-  "pubkey": <32-bytes hex-encoded public key of the event creator>,
-  "created_at": <unix timestamp in seconds>,
-  "kind": <integer>,
-  "tags": [
-    ["e", <32-bytes hex of the id of another event>, <recommended relay URL>],
-    ["p", <32-bytes hex of the key>, <recommended relay URL>],
-    ... // other kinds of tags may be included later
-  ],
-  "content": <arbitrary string>,
-  "sig": <64-bytes signature of the sha256 hash of the serialized event data, which is the same as the "id" field>
-}
-						*/
-      //
-
-      /*
-      console.log('Building nostr object: ')
-      const currentTime = Date.now()
-      const serializedEventData = [
-        0,
-        '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',
-        currentTime,
-        1,
-        [],
-        messageText,
-      ]
-      const bufferSerializedEventData = Buffer.from(serializedEventData)
-
-      console.log('Creating id')
-      const id = crypto
-        .createHash('sha256')
-        .update(bufferSerializedEventData)
-        .digest('base64')
-
-      console.log('ID: ', typeof id, id)
-      const bufferId = Buffer.from(id, 'utf-8')
-
-      console.log('Type of bufferId: ', typeof bufferId, bufferId)
-      const sig = secp256k1.sign(id, privateKey)
-      console.log('signed message: Sig: ', sig)
-      let nostrObject = {
-        id: id,
-        pubkey:
-          '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',
-        created_at: currentTime,
-        kind: 1,
-        tags: [],
-        content: messageText,
-        sig: sig,
-      }
-      console.log('nostr object: ', nostrObject)
-			*/
-
       await sendEvent(messageText)
+
       let nostrBotMessageFinal = 'finished sending nostr message'
       if (nostrBot && nostrBot.meta) {
         nostrBotMessageFinal = nostrBot.meta
@@ -239,24 +184,15 @@ async function sendEvent(message: string) {
     const sk =
       'ef9769c3d36a811e48bcedbc2d6edacc69a52af834eeb0795317554829eb6d81'
 
-    /*
-    let sk = generatePrivateKey()
-    let pk = getPublicKey(sk)
-*/
-    console.log('Calling sendEvent', pk, '----', sk)
     const relay = relayInit('wss://relay.nostr.info')
-    console.log('Calling sendEvent')
     await relay.connect()
-    console.log('Calling sendEvent')
 
     relay.on('connect', () => {
       console.log(`connected to ${relay.url}`)
     })
-    console.log('Calling sendEvent')
     relay.on('error', () => {
       console.log(`failed to connect to ${relay.url}`)
     })
-    console.log('Calling sendEvent')
 
     let event: any = {
       kind: 1,
@@ -265,22 +201,17 @@ async function sendEvent(message: string) {
       tags: [],
       content: message,
     }
-    console.log('Calling sendEvent')
     event.id = getEventHash(event)
-    console.log('Calling sendEvent')
     event.sig = signEvent(event, sk)
 
     let pub = relay.publish(event)
-    console.log('Calling sendEvent')
     pub.on('ok', () => {
       console.log(`${relay.url} has accepted our event`)
     })
-    console.log('Calling sendEvent')
     pub.on('seen', async () => {
       console.log(`we saw the event on ${relay.url}`)
       await relay.close()
     })
-    console.log('Calling sendEvent')
     pub.on('failed', async (reason) => {
       console.log(`failed to publish to ${relay.url}: ${reason}`)
       await relay.close()
