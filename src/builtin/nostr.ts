@@ -245,7 +245,7 @@ async function sendEvent(message: string) {
     let pk = getPublicKey(sk)
 
     console.log('Calling sendEvent', pk, '----', sk)
-    const relay = relayInit('wss://nostr.zebedee.cloud')
+    const relay = relayInit('wss://relay.nostr.info')
     console.log('Calling sendEvent')
     await relay.connect()
     console.log('Calling sendEvent')

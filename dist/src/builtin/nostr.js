@@ -231,7 +231,7 @@ function sendEvent(message) {
             let sk = (0, nostr_tools_1.generatePrivateKey)();
             let pk = (0, nostr_tools_1.getPublicKey)(sk);
             console.log('Calling sendEvent', pk, '----', sk);
-            const relay = (0, nostr_tools_1.relayInit)('wss://nostr.zebedee.cloud');
+            const relay = (0, nostr_tools_1.relayInit)('wss://relay.nostr.info');
             console.log('Calling sendEvent');
             yield relay.connect();
             console.log('Calling sendEvent');
