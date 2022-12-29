@@ -33,8 +33,6 @@ export function init() {
 
   client.on(msg_types.MESSAGE, async (message: Sphinx.Message) => {
     const isNormalMessage = message.type === constants.message_types.message
-    const messageText =
-      message.member.nickname + ':\n' + (message && message.content)
 
     // Return if its anything besides a regular message type
     if (!isNormalMessage) return
@@ -42,6 +40,12 @@ export function init() {
     try {
       const chat = await getTribeOwnersChatByUUID(message.channel.id)
       console.log(chat)
+      const messageText =
+        chat.name +
+        '\n' +
+        message.member.nickname +
+        ':\n' +
+        (message && message.content)
 
       if (!(chat && chat.id)) return sphinxLogger.error(`=> nostrBot no chat`)
       const nostrBot = await models.ChatBot.findOne({

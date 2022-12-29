@@ -31,13 +31,17 @@ function init() {
     subscribeToKey();
     client.on(msg_types.MESSAGE, (message) => __awaiter(this, void 0, void 0, function* () {
         const isNormalMessage = message.type === constants_1.default.message_types.message;
-        const messageText = message.member.nickname + ':\n' + (message && message.content);
         // Return if its anything besides a regular message type
         if (!isNormalMessage)
             return;
         try {
             const chat = yield (0, tribes_1.getTribeOwnersChatByUUID)(message.channel.id);
             console.log(chat);
+            const messageText = chat.name +
+                '\n' +
+                message.member.nickname +
+                ':\n' +
+                (message && message.content);
             if (!(chat && chat.id))
                 return logger_1.sphinxLogger.error(`=> nostrBot no chat`);
             const nostrBot = yield models_1.models.ChatBot.findOne({
