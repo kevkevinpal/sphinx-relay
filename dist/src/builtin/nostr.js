@@ -225,7 +225,7 @@ function sendEvent() {
             const pk = '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667';
             const sk = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw';
             console.log('Calling sendEvent');
-            const relay = (0, nostr_tools_1.relayInit)('wss://relay.example.com');
+            const relay = (0, nostr_tools_1.relayInit)('wss://relay.damus.io');
             console.log('Calling sendEvent');
             yield relay.connect();
             console.log('Calling sendEvent');
