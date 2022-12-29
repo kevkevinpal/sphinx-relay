@@ -17,8 +17,7 @@ const models_1 = require("../models");
 const constants_1 = require("../constants");
 const tribes_1 = require("../utils/tribes");
 const logger_1 = require("../utils/logger");
-const secp256k1 = require("secp256k1");
-const crypto = require("crypto");
+const nostr_tools_1 = require("nostr-tools");
 const { RelayPool } = require('nostr');
 const msg_types = Sphinx.MSG_TYPE;
 let initted = false;
@@ -117,37 +116,44 @@ function init() {
       }
                               */
             //
-            console.log('Building nostr object: ');
-            const currentTime = Date.now();
+            /*
+            console.log('Building nostr object: ')
+            const currentTime = Date.now()
             const serializedEventData = [
-                0,
-                '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',
-                currentTime,
-                1,
-                [],
-                messageText,
-            ];
-            const bufferSerializedEventData = Buffer.from(serializedEventData);
-            console.log('Creating id');
+              0,
+              '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',
+              currentTime,
+              1,
+              [],
+              messageText,
+            ]
+            const bufferSerializedEventData = Buffer.from(serializedEventData)
+      
+            console.log('Creating id')
             const id = crypto
-                .createHash('sha256')
-                .update(bufferSerializedEventData)
-                .digest('base64');
-            console.log('ID: ', typeof id, id);
-            const bufferId = Buffer.from(id, 'utf-8');
-            console.log('Type of bufferId: ', typeof bufferId, bufferId);
-            const sig = secp256k1.sign(id, privateKey);
-            console.log('signed message: Sig: ', sig);
+              .createHash('sha256')
+              .update(bufferSerializedEventData)
+              .digest('base64')
+      
+            console.log('ID: ', typeof id, id)
+            const bufferId = Buffer.from(id, 'utf-8')
+      
+            console.log('Type of bufferId: ', typeof bufferId, bufferId)
+            const sig = secp256k1.sign(id, privateKey)
+            console.log('signed message: Sig: ', sig)
             let nostrObject = {
-                id: id,
-                pubkey: '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',
-                created_at: currentTime,
-                kind: 1,
-                tags: [],
-                content: messageText,
-                sig: sig,
-            };
-            console.log('nostr object: ', nostrObject);
+              id: id,
+              pubkey:
+                '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667',
+              created_at: currentTime,
+              kind: 1,
+              tags: [],
+              content: messageText,
+              sig: sig,
+            }
+            console.log('nostr object: ', nostrObject)
+                  */
+            sendEvent();
             let nostrBotMessageFinal = 'finished sending nostr message';
             if (nostrBot && nostrBot.meta) {
                 nostrBotMessageFinal = nostrBot.meta;
@@ -211,6 +217,39 @@ function init() {
     }));
 }
 exports.init = init;
+const sendEvent = () => {
+    console.log('Calling sendEvent');
+    const pk = '252e08a0151b33451435b1d41075e821e05550c0d50e7a334b76844235294667';
+    const sk = 'nsec16edq3d340n7kh0wfjypsy0yu6s22k004grhmgy326z2ufk88kafqh4ghqw';
+    const relay = (0, nostr_tools_1.relayInit)('wss://relay.example.com');
+    yield relay.connect();
+    relay.on('connect', () => {
+        console.log(`connected to ${relay.url}`);
+    });
+    relay.on('error', () => {
+        console.log(`failed to connect to ${relay.url}`);
+    });
+    let event = {
+        kind: 1,
+        pubkey: pk,
+        created_at: Math.floor(Date.now() / 1000),
+        tags: [],
+        content: 'hello world',
+    };
+    event.id = (0, nostr_tools_1.getEventHash)(event);
+    event.sig = (0, nostr_tools_1.signEvent)(event, sk);
+    let pub = relay.publish(event);
+    pub.on('ok', () => {
+        console.log(`${relay.url} has accepted our event`);
+    });
+    pub.on('seen', () => {
+        console.log(`we saw the event on ${relay.url}`);
+    });
+    pub.on('failed', (reason) => {
+        console.log(`failed to publish to ${relay.url}: ${reason}`);
+    });
+    yield relay.close();
+};
 const botSVG = `<svg viewBox="64 64 896 896" height="12" width="12" fill="white">
   <path d="M300 328a60 60 0 10120 0 60 60 0 10-120 0zM852 64H172c-17.7 0-32 14.3-32 32v660c0 17.7 14.3 32 32 32h680c17.7 0 32-14.3 32-32V96c0-17.7-14.3-32-32-32zm-32 660H204V128h616v596zM604 328a60 60 0 10120 0 60 60 0 10-120 0zm250.2 556H169.8c-16.5 0-29.8 14.3-29.8 32v36c0 4.4 3.3 8 7.4 8h729.1c4.1 0 7.4-3.6 7.4-8v-36c.1-17.7-13.2-32-29.7-32zM664 508H360c-4.4 0-8 3.6-8 8v60c0 4.4 3.6 8 8 8h304c4.4 0 8-3.6 8-8v-60c0-4.4-3.6-8-8-8z" />
 </svg>`;
