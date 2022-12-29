@@ -240,7 +240,7 @@ async function sendEvent() {
 		*/
     let sk = generatePrivateKey()
     let pk = getPublicKey(sk)
-    console.log('Calling sendEvent')
+    console.log('Calling sendEvent', pk, '----', sk)
     const relay = relayInit('wss://nostr.bitcoiner.social')
     console.log('Calling sendEvent')
     await relay.connect()
