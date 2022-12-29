@@ -117,6 +117,7 @@ function init() {
       }
                               */
             //
+            console.log('Building nostr object: ');
             const currentTime = Date.now();
             const serializedEventData = [
                 0,
@@ -130,6 +131,7 @@ function init() {
                 .createHash('sha256')
                 .update(serializedEventData)
                 .digest('base64');
+            console.log('ID: ', id);
             const sig = secp256k1.ecdsaSign(id, privateKey);
             let nostrObject = {
                 id: id,
@@ -140,7 +142,7 @@ function init() {
                 content: messageText,
                 sig: sig,
             };
-            console.log('nostr object', nostrObject);
+            console.log('nostr object: ', nostrObject);
             let nostrBotMessageFinal = 'finished sending nostr message';
             if (nostrBot && nostrBot.meta) {
                 nostrBotMessageFinal = nostrBot.meta;
