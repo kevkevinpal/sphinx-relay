@@ -229,7 +229,7 @@ function sendEvent(message) {
             let pk = getPublicKey(sk)
                             */
             console.log('Calling sendEvent', pk, '----', sk);
-            const relay = (0, nostr_tools_1.relayInit)('wss://nostr.bitcoiner.social');
+            const relay = (0, nostr_tools_1.relayInit)('wss://nostr.zebedee.cloud');
             console.log('Calling sendEvent');
             yield relay.connect();
             console.log('Calling sendEvent');
