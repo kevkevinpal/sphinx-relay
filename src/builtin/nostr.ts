@@ -241,7 +241,7 @@ async function sendEvent() {
     let sk = generatePrivateKey()
     let pk = getPublicKey(sk)
     console.log('Calling sendEvent')
-    const relay = relayInit('wss://relay.damus.io')
+    const relay = relayInit('wss://nostr.bitcoiner.social')
     console.log('Calling sendEvent')
     await relay.connect()
     console.log('Calling sendEvent')

@@ -229,7 +229,7 @@ function sendEvent() {
             let sk = (0, nostr_tools_1.generatePrivateKey)();
             let pk = (0, nostr_tools_1.getPublicKey)(sk);
             console.log('Calling sendEvent');
-            const relay = (0, nostr_tools_1.relayInit)('wss://relay.damus.io');
+            const relay = (0, nostr_tools_1.relayInit)('wss://nostr.bitcoiner.social');
             console.log('Calling sendEvent');
             yield relay.connect();
             console.log('Calling sendEvent');
