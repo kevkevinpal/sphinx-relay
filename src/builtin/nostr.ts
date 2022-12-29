@@ -42,15 +42,13 @@ export function init() {
       console.log(chat)
       const messageText =
         chat.name +
-        '\n' +
-        'Price Per Message: ' +
+        '(PPM: ' +
         chat.pricePerMessage +
-        '\n' +
         'Stake: ' +
         chat.escrowAmount +
         ' for ' +
         chat.escrowMillis / 60000 +
-        ' minutes' +
+        ' min)' +
         '\n' +
         message.member.nickname +
         ':\n' +
