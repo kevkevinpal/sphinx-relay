@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.greenlightSignMessagePayload = exports.connectPeerResponse = exports.connectPeerRequest = exports.subscribeResponse = exports.InvoiceState = exports.subscribeCommand = exports.keysendResponse = exports.keysendRequest = exports.listPeersResponse = exports.listPeersRequest = exports.listChannelsRequest = exports.listChannelsCommand = exports.listChannelsResponse = exports.addInvoiceResponse = exports.addInvoiceCommand = exports.addInvoiceRequest = exports.getInfoResponse = void 0;
+exports.txIndexFromChannelId = exports.greenlightSignMessagePayload = exports.connectPeerResponse = exports.connectPeerRequest = exports.subscribeResponse = exports.InvoiceState = exports.subscribeCommand = exports.keysendResponse = exports.keysendRequest = exports.listPeersResponse = exports.listPeersRequest = exports.listChannelsRequest = exports.listChannelsCommand = exports.listChannelsResponse = exports.addInvoiceResponse = exports.addInvoiceCommand = exports.addInvoiceRequest = exports.getInfoResponse = void 0;
 const config_1 = require("../utils/config");
 const crypto = require("crypto");
 const lightning_1 = require("./lightning");
@@ -355,6 +355,12 @@ var GreenlightChannelState;
     /* Dual-funded channel, waiting for lock-in */
     GreenlightChannelState["DUALOPEND_AWAITING_LOCKIN"] = "DUALOPEND_AWAITING_LOCKIN";
 })(GreenlightChannelState || (GreenlightChannelState = {}));
+function txIndexFromChannelId(int) {
+    const l = long.fromString(int, true);
+    const txIndex = l.shiftRight(16).and(0xffffff);
+    return txIndex.toNumber();
+}
+exports.txIndexFromChannelId = txIndexFromChannelId;
 function shortChanIDfromInt64(int) {
     const l = long.fromString(int, true);
     const blockHeight = l.shiftRight(40);
