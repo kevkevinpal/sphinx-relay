@@ -201,6 +201,10 @@ export async function sendImage(
   //media_key needs to be decrypted with your private key
   const dec = RNCryptor.Decrypt(blob.toString('base64'), decryptMediaKey)
 
+  console.log(dec.toString('base64'))
+  console.log(';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;')
+  console.log(image)
+  console.log(dec.toString('base64') === image)
   // const b64 = dec.toString('base64')
   // //check equality b64 to b64
   t.true(dec.toString('base64') === image)
