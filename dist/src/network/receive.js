@@ -77,17 +77,21 @@ const botMakerTypes = [
 ];
 function onReceive(payload, dest) {
     return __awaiter(this, void 0, void 0, function* () {
+        console.log('START9 LOOK HERE: 1', JSON.stringify(payload), dest);
         if (dest) {
             if (typeof dest !== 'string' || dest.length !== 66)
                 return logger_1.sphinxLogger.error(`INVALID DEST ${dest}`);
         }
         payload.dest = dest; // add "dest" into payload
+        console.log('START9 LOOK HERE: 2');
         // console.log('===> onReceive', JSON.stringify(payload, null, 2))
         if (!(payload.type || payload.type === 0))
             return logger_1.sphinxLogger.error(`no payload.type`);
+        console.log('START9 LOOK HERE: 3');
         const owner = (yield models_1.models.Contact.findOne({
             where: { isOwner: true, publicKey: dest },
         }));
+        console.log('START9 LOOK HERE: 4');
         if (!owner)
             return logger_1.sphinxLogger.error(`=> RECEIVE: owner not found`);
         const tenant = owner.id;
@@ -97,6 +101,7 @@ function onReceive(payload, dest) {
         let isTribe = false;
         let isTribeOwner = false;
         const ownerDataValues = owner.dataValues || owner;
+        console.log('START9 LOOK HERE: 5');
         let maybeChat;
         if (payload.chat && payload.chat.uuid) {
             isTribe = payload.chat.type === constants_1.default.chat_types.tribe;
@@ -106,6 +111,7 @@ function onReceive(payload, dest) {
             if (maybeChat)
                 maybeChat.update({ seen: false });
         }
+        console.log('START9 LOOK HERE: 6');
         if (botTypes.includes(payload.type)) {
             // if is admin on tribe? or is bot maker?
             logger_1.sphinxLogger.info(`=> got bot msg type!`);
@@ -116,10 +122,12 @@ function onReceive(payload, dest) {
             payload.owner = ownerDataValues;
             return controllers_1.ACTIONS[payload.type](payload);
         }
+        console.log('START9 LOOK HERE: 7');
         if (isTribe) {
             const tribeOwnerPubKey = maybeChat && maybeChat.ownerPubkey;
             isTribeOwner = owner.publicKey === tribeOwnerPubKey;
         }
+        console.log('START9 LOOK HERE: 8');
         let forwardedFromContactId = 0;
         if (isTribeOwner) {
             toAddIn.isTribeOwner = true;
@@ -306,6 +314,7 @@ function onReceive(payload, dest) {
                 }
             }
         }
+        console.log('START9 LOOK HERE: 9', doAction);
         if (doAction)
             doTheAction(Object.assign(Object.assign({}, payload), toAddIn), ownerDataValues);
     });
@@ -313,6 +322,7 @@ function onReceive(payload, dest) {
 function doTheAction(data, owner) {
     return __awaiter(this, void 0, void 0, function* () {
         // console.log("=> doTheAction", data, owner)
+        console.log('START9 LOOK HERE: 10', JSON.stringify(data));
         let payload = data;
         if (payload.isTribeOwner) {
             // this is only for storing locally, my own messages as tribe owner
@@ -335,6 +345,7 @@ function doTheAction(data, owner) {
                 payload.message.remoteContent = JSON.stringify({ chat: ogContent }); // this is the key
             //if(ogMediaKey) payload.message.remoteMediaKey = JSON.stringify({'chat':ogMediaKey})
         }
+        console.log('START9 LOOK HERE: 11');
         if (controllers_1.ACTIONS[payload.type]) {
             payload.owner = owner;
             // console.log("ACTIONS!", ACTIONS[payload.type])
@@ -632,6 +643,7 @@ function parseKeysendInvoice(i) {
             saveAnonymousKeysend(i, memo, sender_pubkey, owner.id);
             return;
         }
+        console.log('START9 look here 12');
         let payload;
         if (data[0] === '{') {
             try {
@@ -646,12 +658,15 @@ function parseKeysendInvoice(i) {
             if (threads)
                 payload = yield parseAndVerifyPayload(threads);
         }
+        console.log('START9 look here 13', JSON.stringify(payload));
         if (payload) {
+            console.log('START9 look here 14');
             const dat = payload;
             if (value && dat && dat.message) {
                 dat.message.amount = value; // ADD IN TRUE VALUE
             }
             dat.network_type = constants_1.default.network_types.lightning;
+            console.log('START9 look here 15');
             onReceive(dat, dest);
         }
     });

@@ -83,19 +83,23 @@ const botMakerTypes = [
   constants.message_types.bot_cmd,
 ]
 async function onReceive(payload: Payload, dest: string) {
+  console.log('START9 LOOK HERE: 1', JSON.stringify(payload), dest)
   if (dest) {
     if (typeof dest !== 'string' || dest.length !== 66)
       return sphinxLogger.error(`INVALID DEST ${dest}`)
   }
   payload.dest = dest // add "dest" into payload
 
+  console.log('START9 LOOK HERE: 2')
   // console.log('===> onReceive', JSON.stringify(payload, null, 2))
   if (!(payload.type || payload.type === 0))
     return sphinxLogger.error(`no payload.type`)
 
+  console.log('START9 LOOK HERE: 3')
   const owner: ContactRecord = (await models.Contact.findOne({
     where: { isOwner: true, publicKey: dest },
   })) as ContactRecord
+  console.log('START9 LOOK HERE: 4')
   if (!owner) return sphinxLogger.error(`=> RECEIVE: owner not found`)
   const tenant: number = owner.id
 
@@ -105,6 +109,7 @@ async function onReceive(payload: Payload, dest: string) {
   let isTribe = false
   let isTribeOwner = false
   const ownerDataValues: Contact = owner.dataValues || owner
+  console.log('START9 LOOK HERE: 5')
 
   let maybeChat: ChatRecord | undefined
   if (payload.chat && payload.chat.uuid) {
@@ -114,6 +119,7 @@ async function onReceive(payload: Payload, dest: string) {
     })) as ChatRecord
     if (maybeChat) maybeChat.update({ seen: false })
   }
+  console.log('START9 LOOK HERE: 6')
 
   if (botTypes.includes(payload.type)) {
     // if is admin on tribe? or is bot maker?
@@ -125,11 +131,13 @@ async function onReceive(payload: Payload, dest: string) {
     payload.owner = ownerDataValues
     return ACTIONS[payload.type](payload)
   }
+  console.log('START9 LOOK HERE: 7')
 
   if (isTribe) {
     const tribeOwnerPubKey = maybeChat && maybeChat.ownerPubkey
     isTribeOwner = owner.publicKey === tribeOwnerPubKey
   }
+  console.log('START9 LOOK HERE: 8')
   let forwardedFromContactId = 0
   if (isTribeOwner) {
     toAddIn.isTribeOwner = true
@@ -334,11 +342,13 @@ async function onReceive(payload: Payload, dest: string) {
       }
     }
   }
+  console.log('START9 LOOK HERE: 9', doAction)
   if (doAction) doTheAction({ ...payload, ...toAddIn }, ownerDataValues)
 }
 
 async function doTheAction(data: Payload, owner: Contact) {
   // console.log("=> doTheAction", data, owner)
+  console.log('START9 LOOK HERE: 10', JSON.stringify(data))
   let payload = data
   if (payload.isTribeOwner) {
     // this is only for storing locally, my own messages as tribe owner
@@ -364,6 +374,7 @@ async function doTheAction(data: Payload, owner: Contact) {
       payload.message.remoteContent = JSON.stringify({ chat: ogContent }) // this is the key
     //if(ogMediaKey) payload.message.remoteMediaKey = JSON.stringify({'chat':ogMediaKey})
   }
+  console.log('START9 LOOK HERE: 11')
   if (ACTIONS[payload.type]) {
     payload.owner = owner
     // console.log("ACTIONS!", ACTIONS[payload.type])
@@ -674,6 +685,7 @@ export async function parseKeysendInvoice(
     return
   }
 
+  console.log('START9 look here 12')
   let payload
   if (data[0] === '{') {
     try {
@@ -685,12 +697,15 @@ export async function parseKeysendInvoice(
     const threads = weave(data)
     if (threads) payload = await parseAndVerifyPayload(threads)
   }
+  console.log('START9 look here 13', JSON.stringify(payload))
   if (payload) {
+    console.log('START9 look here 14')
     const dat = payload
     if (value && dat && dat.message) {
       dat.message.amount = value // ADD IN TRUE VALUE
     }
     dat.network_type = constants.network_types.lightning
+    console.log('START9 look here 15')
     onReceive(dat, dest)
   }
 }
