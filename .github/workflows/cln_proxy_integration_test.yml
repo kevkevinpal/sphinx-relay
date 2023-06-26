@@ -1,0 +1,98 @@
+name: CLN Proxy Integration Test
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  integration-test:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        test-name:
+          [
+            'boostPayment',
+            'botCreation',
+            'chatPayment',
+            'chatInvoice',
+            'contacts',
+            'images',
+            'latestTest',
+            'lsats',
+            'paidMeet',
+            'paidTribeImages',
+            'queryRoutes',
+            'self',
+            'sphinxPeople',
+            'streamPayment',
+            'tribe',
+            'tribe3Escrow',
+            'tribe3Messages',
+            'tribe3Private',
+            'tribe3Profile',
+            'tribeEdit',
+            'tribeImages',
+            'messageLength',
+            'transportToken',
+            'pinnedMsg',
+            'hmac',
+            'socketIO',
+            'tribeMember',
+            'actionHistory',
+            'silentTribeBotMsg',
+            'kickBot',
+            'invoices',
+            'boostFail',
+            'deleteMessages',
+            'boostFail',
+            'sphinxAuth',
+          ]
+        node: [16]
+    steps:
+      - name: Enable docker.host.internal for Ubuntu
+        run: |
+          pwd && sudo bash -c 'echo "172.17.0.1 host.docker.internal" >> /etc/hosts'
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: relay
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{matrix.node}}
+      - name: Build Relay
+        working-directory: ./relay
+        run: |
+          npm install && npm run build && docker build -t sphinxlightning/sphinx-relay .
+      - name: Checkout stack
+        run: |
+          git clone -b update/swarm-image https://github.com/stakwork/sphinx-stack.git stack
+      - name: give permissions
+        working-directory: ./stack
+        run: |
+          chmod 777 ./bitcoind;    
+          chmod 777 -R ./relay;
+          chmod 777 -R ./lnd;
+          chmod 777 -R ./proxy;
+          chmod 777 -R ./cln;
+      - name: Check for NODES.json
+        uses: nick-fields/retry@v2
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          command: |
+            GITACTION_ENV=gitactionenv docker-compose -f ./stack/alts/cln-proxy.yml --project-dir ./stack up -d;
+            sleep 240;
+            docker ps
+            docker logs meme.sphinx
+            docker logs dave.sphinx
+            docker wait stack_relaysetup_1
+            cat stack/relay/NODES.json;
+      - name: copy file
+        uses: canastro/copy-file-action@master
+        with:
+          source: 'stack/relay/NODES.json'
+          target: 'relay/src/tests/configs/nodes.json'
+      - name: Run tests
+        working-directory: ./relay
+        run: npx ava src/tests/controllers/${{matrix.test-name}}.test.ts --verbose --serial --timeout=2m

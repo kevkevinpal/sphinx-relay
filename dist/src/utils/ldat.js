@@ -14,6 +14,7 @@ const zbase32 = require("./zbase32");
 const Lightning = require("../grpc/lightning");
 const config_1 = require("./config");
 const logger_1 = require("./logger");
+const models_1 = require("../models");
 const config = (0, config_1.loadConfig)();
 /*
 Lightning Data Access Token
@@ -29,19 +30,37 @@ Base64 strings separated by dots:
 */
 function tokenFromTerms({ host, muid, ttl, pubkey, meta, ownerPubkey, }) {
     return __awaiter(this, void 0, void 0, function* () {
-        const theHost = host || config.media_host || '';
-        const pubkeyBytes = Buffer.from(pubkey, 'hex');
-        const pubkey64 = urlBase64FromBytes(pubkeyBytes);
-        const now = Math.floor(Date.now() / 1000);
-        const exp = ttl ? now + 60 * 60 * 24 * 365 : 0;
-        const ldat = startLDAT(theHost, muid, pubkey64, exp, meta);
-        if (pubkey != '') {
-            const sig = yield Lightning.signBuffer(ldat.bytes, ownerPubkey);
-            const sigBytes = zbase32.decode(sig);
-            return ldat.terms + '.' + urlBase64FromBytes(sigBytes);
+        try {
+            const theHost = host || config.media_host || '';
+            const pubkeyBytes = Buffer.from(pubkey, 'hex');
+            const pubkey64 = urlBase64FromBytes(pubkeyBytes);
+            const now = Math.floor(Date.now() / 1000);
+            const exp = ttl ? now + 60 * 60 * 24 * 365 : 0;
+            const ldat = startLDAT(theHost, muid, pubkey64, exp, meta);
+            if (pubkey != '') {
+                let sig;
+                const lightning = yield Lightning.loadLightning();
+                const contact = (yield models_1.models.Contact.findOne({
+                    where: { isOwner: true, publicKey: ownerPubkey },
+                }));
+                if (Lightning.isCLN(lightning) && contact && contact.id === 1) {
+                    const bytesBase64 = urlBase64(ldat.bytes);
+                    const bytesUtf8 = Buffer.from(bytesBase64, 'utf8');
+                    sig = yield Lightning.signBuffer(bytesUtf8, ownerPubkey);
+                }
+                else {
+                    sig = yield Lightning.signBuffer(ldat.bytes, ownerPubkey);
+                }
+                const sigBytes = zbase32.decode(sig);
+                return ldat.terms + '.' + urlBase64FromBytes(sigBytes);
+            }
+            else {
+                return ldat.terms;
+            }
         }
-        else {
-            return ldat.terms;
+        catch (error) {
+            logger_1.sphinxLogger.error(`error getting token from terms:${error}`, logger_1.logging.Meme);
+            throw error;
         }
     });
 }

@@ -37,8 +37,10 @@ export const payInvoice = async (req: Req, res: Response): Promise<void> => {
     return
   }
   sphinxLogger.info(`[pay invoice] ${payment_request}`)
+  sphinxLogger.info(`[pay invoice] => from ${tenant}`)
 
   try {
+    sphinxLogger.info(`[pay invoice] => pubkey: ${req.owner.publicKey}`)
     const response = await Lightning.sendPayment(
       payment_request,
       req.owner.publicKey
@@ -243,6 +245,28 @@ export const listInvoices = async (req: Req, res: Response): Promise<void> => {
       sphinxLogger.error({ err, response })
     }
   })
+}
+
+export async function getInvoice(req: Req, res: Response): Promise<void> {
+  if (!req.owner) return failure(res, 'no owner')
+  const payment_request = req.query.payment_request as string
+
+  if (!payment_request) {
+    return failure(res, 'Invalid payment request')
+  }
+  try {
+    const decodedPaymentRequest = bolt11.decode(payment_request)
+    const payment_hash =
+      (decodedPaymentRequest.tags.find((t) => t.tagName === 'payment_hash')
+        ?.data as string) || ('' as string)
+    const invoice = await Lightning.getInvoiceHandler(
+      payment_hash,
+      req.owner.publicKey
+    )
+    return success(res, invoice)
+  } catch (error) {
+    return failure(res, error)
+  }
 }
 
 export const receiveInvoice = async (payload: Payload): Promise<void> => {

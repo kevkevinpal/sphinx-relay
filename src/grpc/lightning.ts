@@ -21,6 +21,7 @@ import * as secp256k1 from 'secp256k1'
 import libhsmd from './libhsmd'
 import { get_greenlight_grpc_uri } from './greenlight'
 import { Req } from '../types'
+import * as short from 'short-uuid'
 
 const config = loadConfig()
 const LND_IP = config.lnd_ip || 'localhost'
@@ -31,7 +32,7 @@ const IS_CLN = config.lightning_provider === 'CLN'
 export const LND_KEYSEND_KEY = 5482373484
 export const SPHINX_CUSTOM_RECORD_KEY = 133773310
 
-const FEE_LIMIT_SAT = 10000
+const FEE_LIMIT_SAT = 21
 
 let lightningClient:
   | LightningClient
@@ -288,8 +289,8 @@ export async function newAddress(
 ): Promise<string> {
   const lightning = await loadLightning()
   return new Promise((resolve, reject) => {
-    // TODO now lnd only
-    ;(<LightningClient>lightning).newAddress({ type }, (err, response) => {
+    // TODO remove any
+    ;(<any>lightning).newAddress({ type }, (err, response) => {
       if (err) {
         reject(err)
         return
@@ -314,7 +315,7 @@ export async function sendPayment(
     if (isProxy(lightning)) {
       const opts = {
         payment_request,
-        fee_limit: { fixed: FEE_LIMIT_SAT },
+        fee_limit: { fixed: 100 },
       }
       lightning.sendPaymentSync(opts, (err, response) => {
         if (err || !response) {
@@ -362,10 +363,18 @@ export async function sendPayment(
         call.on('error', async (err) => {
           reject(err)
         })
-        call.write({ payment_request })
+        call.write({ payment_request, fee_limit: { fixed: 100 } })
       }
     }
   })
+}
+
+function maxfee(amt: number): number {
+  if (amt < 100) {
+    return FEE_LIMIT_SAT
+  } else {
+    return Math.round(amt * 0.05)
+  }
 }
 
 export interface KeysendOpts {
@@ -423,7 +432,9 @@ export function keysend(
       const lightning = await loadLightning(true, ownerPubkey) // try proxy
       if (isProxy(lightning)) {
         // console.log("SEND sendPaymentSync", options)
-        options.fee_limit = { fixed: FEE_LIMIT_SAT }
+        // set a fee limit if its a small payment
+        // LND default is 100% which may be too small
+        options.fee_limit = { fixed: maxfee(options.amt) }
         lightning.sendPaymentSync(options, (err, response) => {
           if (err || !response) {
             reject(err)
@@ -464,7 +475,7 @@ export function keysend(
         } else {
           // console.log("SEND sendPaymentV2", options)
           // new sendPayment (with optional route hints)
-          options.fee_limit_sat = FEE_LIMIT_SAT
+          options.fee_limit_sat = maxfee(options.amt)
           options.timeout_seconds = 16
           const router = loadRouter()
           const call = router.sendPaymentV2(options)
@@ -516,6 +527,10 @@ export async function keysendMessage(
   ownerPubkey?: string
 ): Promise<interfaces.SendPaymentResponse> {
   sphinxLogger.info('keysendMessage', logging.Lightning)
+  sphinxLogger.info(
+    `=> keysendMessage from ${ownerPubkey} ${JSON.stringify(opts, null, 2)}`,
+    logging.PaymentTracking
+  )
   return new Promise(async function (resolve, reject) {
     if (!opts.data || typeof opts.data !== 'string') {
       return reject('string plz')
@@ -578,8 +593,8 @@ export function listInvoices(): Promise<any> {
   sphinxLogger.info('listInvoices', logging.Lightning)
   return new Promise(async (resolve, reject) => {
     const lightning = await loadLightning()
-    // TODO gl support? proxy?
-    ;(<LightningClient>lightning).listInvoices(
+    // TODO remove any
+    ;(<any>lightning).listInvoices(
       {
         num_max_invoices: 100000,
         reversed: true,
@@ -719,7 +734,7 @@ export function signBuffer(msg: Buffer, ownerPubkey?: string): Promise<string> {
         finalRecid.writeUInt8(ecRecid, 0)
         const finalSig = Buffer.concat([finalRecid, sigBytes], 65)
         resolve(zbase32.encode(finalSig))
-      } else if (isLND(lightning)) {
+      } else if (isLND(lightning) || isProxy(lightning)) {
         const options = { msg }
         lightning.signMessage(options, function (err, sig) {
           if (err || !sig || !sig.signature) {
@@ -788,7 +803,7 @@ export function verifyMessage(
           valid: true,
           pubkey: recoveredPubkey.toString('hex'),
         })
-      } else if (isLND(lightning)) {
+      } else if (isLND(lightning) || isProxy(lightning)) {
         // sig is zbase32 encoded
         lightning.verifyMessage(
           {
@@ -881,19 +896,40 @@ export async function getInfo(
 export async function addInvoice(
   request: interfaces.AddInvoiceRequest,
   ownerPubkey?: string
-): Promise<interfaces.AddInvoiceResponse> {
+): Promise<interfaces.AddInvoiceResponse | { payment_request: string }> {
   // log('addInvoice')
   return new Promise(async (resolve, reject) => {
     const lightning = await loadLightning(true, ownerPubkey) // try proxy
-    const cmd = interfaces.addInvoiceCommand()
-    const req = interfaces.addInvoiceRequest(request)
-    lightning[cmd](req, function (err, response) {
-      if (err == null) {
-        resolve(interfaces.addInvoiceResponse(response))
-      } else {
-        reject(err)
-      }
-    })
+    if (isLND(lightning) || isProxy(lightning)) {
+      const cmd = interfaces.addInvoiceCommand()
+      const req = interfaces.addInvoiceRequest(request)
+      lightning[cmd](req, function (err, response) {
+        if (err == null) {
+          resolve(interfaces.addInvoiceResponse(response))
+        } else {
+          reject(err)
+        }
+      })
+    } else if (isCLN(lightning)) {
+      const label = short.generate()
+      lightning.invoice(
+        {
+          amount_msat: {
+            amount: { msat: convertToMsat(request.value as number) },
+          },
+          label,
+          description: request.memo,
+        },
+        function (err, response) {
+          if (err == null) {
+            resolve({ payment_request: response?.bolt11 || '' })
+          } else {
+            sphinxLogger.error([err], logging.Lightning)
+            reject(err)
+          }
+        }
+      )
+    }
   })
 }
 
@@ -931,18 +967,15 @@ export async function listChannels(
           reject(err)
         }
       })
-    } else if (isLND(lightning)) {
-      // TODO proxy?
-      ;(<LightningClient>lightning).listChannels(
-        opts,
-        function (err, response) {
-          if (err == null && response) {
-            resolve(interfaces.listChannelsResponse(response))
-          } else {
-            reject(err)
-          }
+    } else {
+      // TODO remove any
+      ;(<any>lightning).listChannels(opts, function (err, response) {
+        if (err == null && response) {
+          resolve(interfaces.listChannelsResponse(response))
+        } else {
+          reject(err)
         }
-      )
+      })
     }
   })
 }
@@ -1197,6 +1230,85 @@ function ascii_to_hexa(str) {
   return arr1.join('')
 }
 
+export async function getInvoiceHandler(
+  payment_hash: string,
+  ownerPubkey?: string
+) {
+  sphinxLogger.info('getInvoice', logging.Lightning)
+  const payment_hash_bytes = Buffer.from(payment_hash, 'hex')
+  return new Promise(async (resolve, reject) => {
+    try {
+      const lightning = await loadLightning(true, ownerPubkey)
+      if (isGL(lightning)) {
+        return //Fixing this later
+      } else if (isLND(lightning) || isProxy(lightning)) {
+        ;(<any>lightning).lookupInvoice(
+          { r_hash: payment_hash_bytes },
+          function (err, response) {
+            if (err) {
+              sphinxLogger.error([err], logging.Lightning)
+              reject(err)
+            }
+            if (response) {
+              const invoice = {
+                settled: response?.settled,
+                payment_request: response?.payment_request,
+                payment_hash: response?.r_hash.toString('hex'),
+                preimage: response?.settled
+                  ? response?.r_preimage.toString('hex')
+                  : '',
+                amount: convertMsatToSat(response.amt_paid),
+              }
+              resolve(invoice)
+            }
+          }
+        )
+      } else if (isCLN(lightning)) {
+        await lightning.listInvoices(
+          {
+            payment_hash: payment_hash_bytes,
+          },
+          (err: any, response: any) => {
+            if (err) {
+              sphinxLogger.error([err], logging.Lightning)
+              reject(err)
+            }
+            if (response) {
+              if (response.invoices.length > 0) {
+                const res = response.invoices[0]
+                const invoice = {
+                  amount: convertMsatToSat(
+                    res?.amount_received_msat?.msat || 0
+                  ),
+                  settled: res.status.toLowerCase() === 'paid' ? true : false,
+                  payment_request: res.bolt11,
+                  preimage:
+                    res.status.toLowerCase() === 'paid'
+                      ? res.payment_preimage.toString('hex')
+                      : '',
+                  payment_hash: res.payment_hash.toString('hex'),
+                }
+                resolve(invoice)
+              }
+              resolve({})
+            }
+          }
+        )
+      }
+    } catch (error) {
+      sphinxLogger.error([error], logging.Lightning)
+      throw error
+    }
+  })
+}
+
+function convertMsatToSat(amount: string) {
+  return Number(amount) / 1000
+}
+
+function convertToMsat(amount: number) {
+  return Number(amount) * 1000
+}
 // async function loadLightningNew() {
 //   if (lightningClient) {
 //     return lightningClient

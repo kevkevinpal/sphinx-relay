@@ -88,12 +88,15 @@ function tribe3Msgs(t, node1, node2, node3) {
             host: internalTribeHost,
             name: 'testChannel2',
         };
+        yield (0, helpers_1.sleep)(1000);
         const tribeSeverAddChannelResponse = yield http.post(node1.external_ip + '/tribe_channel', (0, helpers_1.makeArgs)(node1, createChannelBody));
+        yield (0, helpers_1.sleep)(1000);
         const tribeSeverAddChannelResponse2 = yield http.post(node1.external_ip + '/tribe_channel', (0, helpers_1.makeArgs)(node1, createChannelBody2));
         console.log(tribeSeverAddChannelResponse, tribeSeverAddChannelResponse2);
         //Here we get the tribe which should have the correct channels
         const r = yield (0, get_1.getCheckTribe)(t, node1, tribe.id);
         const channelTribe = yield (0, get_1.getTribeByUuid)(t, r);
+        console.log(channelTribe);
         t.true(tribeSeverAddChannelResponse.response.id == channelTribe.channels[0].id, 'First tribe added should have an id of the response we get back when we call for tribes');
         t.true(tribeSeverAddChannelResponse2.response.id == channelTribe.channels[1].id, 'second tribe added should have an id of the response we get back when we call for tribes');
         t.true(tribeSeverAddChannelResponse.response.name == createChannelBody.name &&

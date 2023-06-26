@@ -40,7 +40,8 @@ function loadConfig() {
     const final_cltv_delta = ENV.FINAL_CLTV_DELTA || config.final_cltv_delta;
     return {
         lightning_provider: provider,
-        logging: logg || 'TRIBES,MEME,NOTIFICATION,EXPRESS,NETWORK,DB,PROXY,LSAT,BOTS',
+        logging: logg ||
+            'TRIBES,MEME,NOTIFICATION,EXPRESS,NETWORK,DB,PROXY,LSAT,BOTS,PAYMENT_TRACKING',
         min_sat: parseInt(min_sat) || DEFAULT_MIN_SAT,
         final_cltv_delta: parseInt(final_cltv_delta) || DEFAULT_FINAL_CLTV_DELTA,
         senza_url: ENV.SENZA_URL || config.senza_url,
@@ -116,6 +117,7 @@ function loadConfig() {
         default_cache_host: ENV.DEFAULT_CACHE_HOST || config.default_cache_host,
         store_cache: ENV.STORE_CACHE || config.store_cache || DEFAULT_STORE_CACHE,
         default_prune: ENV.DEFAULT_PRUNE || config.default_prune || DEFAULT_PRUNE,
+        rate_limit_trust_proxy: ENV.RATE_LIMIT_TRUST_PROXY || config.rate_limit_trust_proxy,
     };
 }
 exports.loadConfig = loadConfig;

@@ -1,7 +1,7 @@
 export { sendMessageAndCheckDecryption } from './sendMessageAndCheckDecryption'
 export { sendTribeMessageAndCheckDecryption } from './sendTribeMessageAndCheckDecryption'
 export { checkMessageDecryption } from './checkMessageDecryption'
-export { sendBoost } from './sendBoost'
+export { sendBoost, boostAsMessage } from './sendBoost'
 export { sendImage } from './sendImage'
 export { sendPayment } from './sendPayment'
 export { sendEscrowMsg } from './sendEscrowMsg'
@@ -13,4 +13,8 @@ export { payStream } from './payStream'
 export { sendMessage } from './sendMessage'
 export { getAllMessages } from './getAllMessages'
 export { getSpecificMsg } from './getSpecifiMessage'
-export { sendTribeDirectPayment } from './sendTribeDirectpayment'
+export {
+  sendTribeDirectPayment,
+  sendDirectPayment,
+} from './sendTribeDirectpayment'
+export { getTribeMessages } from './getTribeMessages'

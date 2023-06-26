@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.receiveInvoice = exports.listInvoices = exports.createInvoice = exports.cancelInvoice = exports.payInvoice = void 0;
+exports.receiveInvoice = exports.getInvoice = exports.listInvoices = exports.createInvoice = exports.cancelInvoice = exports.payInvoice = void 0;
 const models_1 = require("../models");
 const Lightning = require("../grpc/lightning");
 const socket = require("../utils/socket");
@@ -42,7 +42,9 @@ const payInvoice = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         return;
     }
     logger_1.sphinxLogger.info(`[pay invoice] ${payment_request}`);
+    logger_1.sphinxLogger.info(`[pay invoice] => from ${tenant}`);
     try {
+        logger_1.sphinxLogger.info(`[pay invoice] => pubkey: ${req.owner.publicKey}`);
         const response = yield Lightning.sendPayment(payment_request, req.owner.publicKey);
         logger_1.sphinxLogger.info(`[pay invoice data] ${JSON.stringify(response)}`);
         const message = (yield models_1.models.Message.findOne({
@@ -227,6 +229,27 @@ const listInvoices = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     });
 });
 exports.listInvoices = listInvoices;
+function getInvoice(req, res) {
+    var _a;
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!req.owner)
+            return (0, res_1.failure)(res, 'no owner');
+        const payment_request = req.query.payment_request;
+        if (!payment_request) {
+            return (0, res_1.failure)(res, 'Invalid payment request');
+        }
+        try {
+            const decodedPaymentRequest = bolt11.decode(payment_request);
+            const payment_hash = ((_a = decodedPaymentRequest.tags.find((t) => t.tagName === 'payment_hash')) === null || _a === void 0 ? void 0 : _a.data) || '';
+            const invoice = yield Lightning.getInvoiceHandler(payment_hash, req.owner.publicKey);
+            return (0, res_1.success)(res, invoice);
+        }
+        catch (error) {
+            return (0, res_1.failure)(res, error);
+        }
+    });
+}
+exports.getInvoice = getInvoice;
 const receiveInvoice = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     logger_1.sphinxLogger.info(`received invoice ${payload.message.invoice}`);
     const total_spent = 1;

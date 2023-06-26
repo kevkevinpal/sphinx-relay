@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.initializeDeleteMessageCronJobs = exports.receiveVoip = exports.clearMessages = exports.readMessages = exports.receiveDeleteMessage = exports.receiveRepayment = exports.receiveBoost = exports.receiveMessage = exports.sendMessage = exports.deleteMessage = exports.getMsgs = exports.getAllMessages = exports.getMessages = void 0;
+exports.initializeDeleteMessageCronJobs = exports.receiveVoip = exports.disappearingMessages = exports.clearMessages = exports.readMessages = exports.receiveDeleteMessage = exports.receiveRepayment = exports.receiveBoost = exports.receiveMessage = exports.sendMessage = exports.deleteMessage = exports.getMsgs = exports.getAllMessages = exports.getMessages = exports.getMessageByUuid = void 0;
 const models_1 = require("../models");
 const sequelize_1 = require("sequelize");
 const underscore_1 = require("underscore");
@@ -27,9 +27,25 @@ const logger_1 = require("../utils/logger");
 const tribes_1 = require("../utils/tribes");
 const cron_1 = require("cron");
 const config_1 = require("../utils/config");
+const reversal_1 = require("../utils/reversal");
 // store all current running jobs in memory
 const jobs = {};
 const config = (0, config_1.loadConfig)();
+const getMessageByUuid = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.owner)
+        return (0, res_1.failure)(res, 'no owner');
+    const tenant = req.owner.id;
+    const uuid = req.params.uuid;
+    if (!uuid)
+        return (0, res_1.failure)(res, 'no uuid supplied');
+    const message = (yield models_1.models.Message.findOne({
+        where: { tenant, uuid },
+    }));
+    (0, res_1.success)(res, {
+        message: jsonUtils.messageToJson(message),
+    });
+});
+exports.getMessageByUuid = getMessageByUuid;
 // deprecated
 const getMessages = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.owner)
@@ -416,10 +432,10 @@ Receive a message and store it in the database.
 */
 const receiveMessage = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { owner, sender, chat, content, remote_content, msg_id, chat_type, sender_alias, msg_uuid, date_string, reply_uuid, parent_id, amount, network_type, sender_photo_url, message_status, force_push, hasForwardedSats, person, cached, } = yield helpers.parseReceiveParams(payload);
-    logger_1.sphinxLogger.info(`received message on tenant ${owner.id} chat ${chat.id}`);
     if (!owner || !sender || !chat) {
         return logger_1.sphinxLogger.info('=> no group chat!');
     }
+    logger_1.sphinxLogger.info(`received message on tenant ${owner.id} chat ${chat.id}`);
     const tenant = owner.id;
     const text = content || '';
     let date = new Date();
@@ -485,6 +501,16 @@ const receiveBoost = (payload) => __awaiter(void 0, void 0, void 0, function* ()
     date.setMilliseconds(0);
     if (date_string)
         date = new Date(date_string);
+    if (payload.error_message) {
+        return yield (0, reversal_1.onReceiveReversal)({
+            tenant,
+            type: 'boost',
+            errorMsg: payload.error_message,
+            msgUuid: payload.message.uuid,
+            chat,
+            sender,
+        });
+    }
     const msg = {
         chatId: chat.id,
         uuid: msg_uuid,
@@ -654,6 +680,24 @@ const clearMessages = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     (0, res_1.success)(res, {});
 });
 exports.clearMessages = clearMessages;
+function disappearingMessages(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        if (!req.owner)
+            return (0, res_1.failure)(res, 'no owner');
+        const tenant = req.owner.id;
+        try {
+            const contacts = (yield models_1.models.Contact.findAll({
+                where: { tenant, isOwner: true },
+            }));
+            yield deleteMessages(contacts);
+            return (0, res_1.success)(res, 'Messages deleted successfully');
+        }
+        catch (error) {
+            return (0, res_1.failure)(res, error);
+        }
+    });
+}
+exports.disappearingMessages = disappearingMessages;
 const receiveVoip = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     logger_1.sphinxLogger.info(`received Voip ${payload}`);
     const { owner, sender, chat, content, msg_id, chat_type, sender_alias, msg_uuid, date_string, reply_uuid, parent_id, amount, network_type, sender_photo_url, message_status, hasForwardedSats, person, remote_content, } = yield helpers.parseReceiveParams(payload);
@@ -774,7 +818,7 @@ function deleteMessages(contacts) {
             for (let i = 0; i < contacts.length; i++) {
                 const contact = contacts[i];
                 const date = new Date();
-                date.setDate(date.getDate() - (contact.prune || parseInt(config.default_prune)));
+                date.setDate(date.getDate() - (contact.prune || parseInt(config.default_prune || 0)));
                 yield handleMessageDelete({
                     tenant: contact.tenant,
                     date: date.toISOString(),
@@ -792,9 +836,26 @@ function deleteMessages(contacts) {
 function handleMessageDelete({ tenant, date, }) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            yield models_1.models.Message.destroy({
-                where: { tenant, createdAt: { [sequelize_1.Op.lt]: date } },
-            });
+            const chats = (yield models_1.models.Chat.findAll({
+                where: { tenant, deleted: false },
+            }));
+            for (let i = 0; i < chats.length; i++) {
+                const chat = chats[i];
+                const chatMessages = (yield models_1.models.Message.findAll({
+                    where: { chatId: chat.id, tenant },
+                }));
+                if (chatMessages.length > 10) {
+                    const tenthToLastID = chatMessages[chatMessages.length - 10];
+                    yield models_1.models.Message.destroy({
+                        where: {
+                            id: { [sequelize_1.Op.lt]: tenthToLastID.id },
+                            createdAt: { [sequelize_1.Op.lt]: date },
+                            chatId: chat.id,
+                            tenant,
+                        },
+                    });
+                }
+            }
             logger_1.sphinxLogger.info(['=> message deleted by cron job']);
         }
         catch (error) {

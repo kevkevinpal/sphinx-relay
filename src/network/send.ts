@@ -6,6 +6,7 @@ import {
   ChatMember as ChatMemberModel,
   ChatRecord,
   ChatBotRecord,
+  MessageRecord,
 } from '../models'
 import * as LND from '../grpc/lightning'
 import { asyncForEach, sleep } from '../helpers'
@@ -22,6 +23,7 @@ import constants from '../constants'
 import { logging, sphinxLogger } from '../utils/logger'
 import { Msg, MessageContent, ChatMember } from './interfaces'
 import { loadConfig } from '../utils/config'
+import { errMsgString } from '../utils/errMsgString'
 
 const config = loadConfig()
 
@@ -43,6 +45,15 @@ export interface SendMessageParams {
   isForwarded?: boolean
   forwardedFromContactId?: number
   realSatsContactId?: number
+}
+
+interface ReversePaymentInput {
+  tenant: number
+  originalMessage: MessageRecord
+  msgToBeSent: Msg
+  error: any
+  amount: number | undefined
+  sender: Partial<ContactRecord | Contact>
 }
 
 /**
@@ -185,64 +196,83 @@ export async function sendMessage({
     `=> sending to ${contactIds.length} 'contacts'`,
     logging.Network
   )
-  await asyncForEach(contactIds, async (contactId: number) => {
-    if (contactId === tenant) {
-      // dont send to self
-      return
-    }
-
-    const contact: Contact = (await models.Contact.findOne({
-      where: { id: contactId },
-    })) as Contact
-    if (!contact) {
-      return // skip if u simply dont have the contact
-    }
-    if (tenant === -1) {
-      // this is a bot sent from me!
-      if (contact.isOwner) {
-        return // dont MQTT to myself!
-      }
-    }
-
-    const destkey = contact.publicKey
-    if (destkey === skipPubKey) {
-      return // skip (for tribe owner broadcasting, not back to the sender)
-    }
-
-    let mqttTopic = networkType === 'mqtt' ? `${destkey}/${chatUUID}` : ''
-
-    // sending a payment to one subscriber, buying a pic from OG poster
-    // or boost to og poster
-    if (isTribeOwner && amount && realSatsContactId === contactId) {
-      mqttTopic = '' // FORCE KEYSEND!!!
-      await recordLeadershipScore(tenant, amount, chat.id, contactId, type)
-    }
-
-    const m = await personalizeMessage(msg, contact, isTribeOwner)
-
-    // send a "push", the user was mentioned
-    if (
-      mentionContactIds.includes(contact.id) ||
-      mentionContactIds.includes(Infinity)
-    ) {
-      m.message.push = true
-    }
-    const opts = {
-      dest: destkey,
-      data: m,
-      amt: Math.max(amount || 0, constants.min_sat_amount),
-      route_hint: contact.routeHint || '',
-    }
-
+  const realSatsIndex = contactIds.findIndex((cid) => cid === realSatsContactId)
+  if (realSatsContactId && realSatsIndex < 0) {
+    await sleep(1000)
+    return await initiateReversal({
+      tenant,
+      msg,
+      error: 'user is no longer in tribe',
+      amount,
+      sender,
+    })
+  }
+  if (realSatsIndex > 0) {
+    contactIds.unshift(contactIds.splice(realSatsIndex, 1)[0])
+  }
+  for (const contactId of contactIds) {
     try {
+      if (contactId === tenant) {
+        // dont send to self
+        continue
+      }
+
+      const contact: Contact = (await models.Contact.findOne({
+        where: { id: contactId },
+      })) as Contact
+      if (!contact) {
+        continue // skip if u simply dont have the contact
+      }
+      if (tenant === -1) {
+        // this is a bot sent from me!
+        if (contact.isOwner) {
+          continue // dont MQTT to myself!
+        }
+      }
+
+      const destkey = contact.publicKey
+      if (destkey === skipPubKey) {
+        continue // skip (for tribe owner broadcasting, not back to the sender)
+      }
+
+      let mqttTopic = networkType === 'mqtt' ? `${destkey}/${chatUUID}` : ''
+
+      // sending a payment to one subscriber, buying a pic from OG poster
+      // or boost to og poster
+      if (isTribeOwner && amount && realSatsContactId === contactId) {
+        mqttTopic = '' // FORCE KEYSEND!!!
+        await recordLeadershipScore(tenant, amount, chat.id, contactId, type)
+      }
+
+      const m = await personalizeMessage(msg, contact, isTribeOwner)
+
+      // send a "push", the user was mentioned
+      if (
+        mentionContactIds.includes(contact.id) ||
+        mentionContactIds.includes(Infinity)
+      ) {
+        m.message.push = true
+      }
+      const opts = {
+        dest: destkey,
+        data: m,
+        amt: Math.max(amount || 0, constants.min_sat_amount),
+        route_hint: contact.routeHint || '',
+      }
       const r = await signAndSend(opts, sender, mqttTopic)
       yes = r
-    } catch (e) {
-      sphinxLogger.error(`KEYSEND ERROR ${e}`)
-      no = e
+    } catch (error) {
+      sphinxLogger.error(`KEYSEND ERROR ${error}`)
+      no = error
+      if (realSatsContactId && contactId === realSatsContactId) {
+        //If a member boost, and an admin can't forward the sat to the receipt, send the boost back or store in a table and retry later
+        await initiateReversal({ tenant, msg, error, amount, sender })
+        break
+      }
     }
     await sleep(10)
-  })
+  }
+
   if (no) {
     if (failure) failure(no)
   } else {
@@ -296,7 +326,7 @@ export function signAndSend(
         await tribes.publish(
           mqttTopic,
           data,
-          ownerPubkey,
+          owner as Contact,
           () => {
             if (!replayingHistory) {
               if (mqttTopic) checkIfAutoConfirm(opts.data, ownerID)
@@ -529,5 +559,54 @@ async function interceptTribeMsgForHiddenCmds(
       logging.Network
     )
     return false
+  }
+}
+
+async function reversePayment({
+  tenant,
+  originalMessage,
+  msgToBeSent,
+  error,
+  amount,
+  sender,
+}: ReversePaymentInput) {
+  try {
+    //Get the original sender
+    const originalContact = (await models.Contact.findOne({
+      where: { id: originalMessage.sender, tenant },
+    })) as ContactRecord
+    const errorMsg = errMsgString(error)
+    const m = await personalizeMessage(msgToBeSent, originalContact, true)
+    m.error_message = errorMsg
+    const opts = {
+      dest: originalContact.publicKey,
+      data: m,
+      amt: Math.max(amount || 0, constants.min_sat_amount),
+      route_hint: originalContact.routeHint || '',
+    }
+    await signAndSend(opts, sender)
+    await originalMessage.update({
+      status: constants.statuses.failed,
+      errorMessage: errorMsg,
+    })
+    sphinxLogger.info('Sats reversal was successful')
+  } catch (error) {
+    sphinxLogger.error(`Failed to reverse sats ${error}`, logging.Network)
+  }
+}
+
+async function initiateReversal({ tenant, msg, error, amount, sender }) {
+  const originalMessage = (await models.Message.findOne({
+    where: { tenant, uuid: msg.message.uuid },
+  })) as MessageRecord
+  if (originalMessage.sender !== tenant) {
+    await reversePayment({
+      tenant,
+      originalMessage,
+      msgToBeSent: msg,
+      error,
+      amount,
+      sender,
+    })
   }
 }
