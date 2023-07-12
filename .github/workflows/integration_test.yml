@@ -10,45 +10,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test-name:
-          [
-            'boostPayment',
-            'botCreation',
-            'chatPayment',
-            'chatInvoice',
-            'contacts',
-            'images',
-            'latestTest',
-            'lsats',
-            'paidMeet',
-            'paidTribeImages',
-            'queryRoutes',
-            'self',
-            'sphinxPeople',
-            'streamPayment',
-            'tribe',
-            'tribe3Escrow',
-            'tribe3Messages',
-            'tribe3Private',
-            'tribe3Profile',
-            'tribeEdit',
-            'tribeImages',
-            'messageLength',
-            'transportToken',
-            'pinnedMsg',
-            'hmac',
-            'socketIO',
-            'tribeMember',
-            'actionHistory',
-            'silentTribeBotMsg',
-            'kickBot',
-            'invoices',
-            'boostFail',
-            'deleteMessages',
-            'boostFail',
-            'sphinxAuth',
-            'fees',
-          ]
         node: [16]
     steps:
       - name: Enable docker.host.internal for Ubuntu
@@ -94,6 +55,52 @@ jobs:
         with:
           source: 'stack/relay/NODES.json'
           target: 'relay/src/tests/configs/nodes.json'
-      - name: Run tests
+
+  run_tests:
+    needs: integration-test
+    strategy:
+      fail-fast: false
+      matrix:
+        test-name:
+          [
+            'boostPayment',
+            'botCreation',
+            'chatPayment',
+            'chatInvoice',
+            'contacts',
+            'images',
+            'latestTest',
+            'lsats',
+            'paidMeet',
+            'paidTribeImages',
+            'queryRoutes',
+            'self',
+            'sphinxPeople',
+            'streamPayment',
+            'tribe',
+            'tribe3Escrow',
+            'tribe3Messages',
+            'tribe3Private',
+            'tribe3Profile',
+            'tribeEdit',
+            'tribeImages',
+            'messageLength',
+            'transportToken',
+            'pinnedMsg',
+            'hmac',
+            'socketIO',
+            'tribeMember',
+            'actionHistory',
+            'silentTribeBotMsg',
+            'kickBot',
+            'invoices',
+            'boostFail',
+            'deleteMessages',
+            'boostFail',
+            'sphinxAuth',
+            'fees',
+          ]
+    steps:
+      - name: run tests
         working-directory: ./relay
         run: npx ava src/tests/controllers/${{matrix.test-name}}.test.ts --verbose --serial --timeout=2m
