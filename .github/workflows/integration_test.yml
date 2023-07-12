@@ -102,5 +102,5 @@ jobs:
           ]
     steps:
       - name: run tests
-      working-directory: ./relay
-      run: npx ava src/tests/controllers/${{matrix.test-name}}.test.ts --verbose --serial --timeout=2m
+        working-directory: ./relay
+        run: npx ava src/tests/controllers/${{matrix.test-name}}.test.ts --verbose --serial --timeout=2m
